@@ -180,10 +180,30 @@ function ShopLayoutContent({ children }: { children: React.ReactNode }) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16 sm:h-20 gap-4">
             
-            {/* Logo */}
-            <Link href="/" className="flex items-center gap-2 group cursor-pointer">
-              <Logo className="h-10 sm:h-12 w-auto" />
-            </Link>
+            {/* Logo and Mobile Custom Links */}
+            <div className="flex items-center gap-3 mr-auto lg:mr-0">
+              <Link href="/" className="flex items-center gap-2 group cursor-pointer">
+                <Logo className="h-10 sm:h-12 w-auto" />
+              </Link>
+              
+              {/* Mobile Top Nav Custom Links */}
+              <div className="lg:hidden flex items-center gap-3 border-l border-zinc-200 pl-3 ml-1 select-none">
+                <Link 
+                  href="/about-us"
+                  onClick={() => playSound.playClick()}
+                  className="text-xs font-bold text-zinc-700 hover:text-black transition-colors cursor-pointer whitespace-nowrap"
+                >
+                  Biz Kimiz?
+                </Link>
+                <Link 
+                  href="/location"
+                  onClick={() => playSound.playClick()}
+                  className="text-xs font-bold text-zinc-700 hover:text-black transition-colors cursor-pointer whitespace-nowrap"
+                >
+                  Konumumuz
+                </Link>
+              </div>
+            </div>
 
             {/* Desktop Navbar Category Links */}
             <nav className="hidden lg:flex items-center space-x-6">
