@@ -9,6 +9,11 @@ CREATE TABLE IF NOT EXISTS categories (
   name TEXT NOT NULL,
   slug TEXT NOT NULL,
   parent_id TEXT REFERENCES categories(id) ON DELETE SET NULL,
+  description TEXT,
+  icon_type TEXT DEFAULT 'svg',
+  icon_svg_preset TEXT DEFAULT 'none',
+  icon_image_url TEXT,
+  is_promo BOOLEAN DEFAULT false,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
@@ -160,11 +165,14 @@ ALTER TABLE admin_settings ENABLE ROW LEVEL SECURITY;
 -- For security, only SELECT reads are permitted publicly; INSERT/UPDATE/DELETE are not allowed through the anon key.
 CREATE POLICY "Allow public read admin settings" ON admin_settings FOR SELECT USING (true);
 
--- Seed Initial Passwords
+-- Seed Initial Passwords and Settings
 INSERT INTO admin_settings (key, value)
 VALUES 
   ('admin_login_password', 't9Y2xK8vB7mW5qR4sP0uC3zJ1bE8dF9g'),
-  ('admin_action_password', 'k4P9vR1sT7uW0xY3zA6bC9dE2fH5i8jF')
+  ('admin_action_password', 'k4P9vR1sT7uW0xY3zA6bC9dE2fH5i8jF'),
+  ('customer_reviews_rating', '4.97'),
+  ('customer_reviews_count', '875'),
+  ('coupon_banner_visible', 'true')
 ON CONFLICT (key) 
 DO UPDATE SET 
   value = EXCLUDED.value,

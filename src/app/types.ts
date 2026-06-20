@@ -35,6 +35,11 @@ export interface Category {
   name: string;
   parentId?: string | null; // For hierarchical multi-level structure (e.g. Kedi -> Mama -> Kuru Mama)
   slug: string;
+  description?: string;
+  iconType?: 'svg' | 'image';
+  iconSvgPreset?: 'cat' | 'dog' | 'bird' | 'fish' | 'rabbit' | 'none';
+  iconImageUrl?: string;
+  isPromo?: boolean;
 }
 
 export interface Coupon {

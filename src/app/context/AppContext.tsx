@@ -63,17 +63,17 @@ interface AppContextType {
   }) => string; // returns tracking code
   updateOrderStatus: (orderId: string, status: Order['status']) => void;
   requireActionAuth: (onSuccess: () => void) => void;
+  settings: { [key: string]: string };
+  updateSetting: (key: string, value: string) => Promise<void>;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
-
-// Initial Categories (Turkish hierarchy)
 const initialCategories: Category[] = [
-  { id: 'cat-1', name: 'Kedi', parentId: null, slug: 'kedi' },
-  { id: 'cat-2', name: 'Köpek', parentId: null, slug: 'kopek' },
-  { id: 'cat-3', name: 'Kuş', parentId: null, slug: 'kus' },
-  { id: 'cat-4', name: 'Akvaryum', parentId: null, slug: 'akvaryum' },
-  { id: 'cat-5', name: 'Kemirgen', parentId: null, slug: 'kemirgen' },
+  { id: 'cat-1', name: 'Kedi', parentId: null, slug: 'kedi', description: 'Mama, Kum & Oyuncaklar', iconType: 'svg', iconSvgPreset: 'cat', isPromo: true },
+  { id: 'cat-2', name: 'Köpek', parentId: null, slug: 'kopek', description: 'Tasma, Mama & Aksesuar', iconType: 'svg', iconSvgPreset: 'dog', isPromo: true },
+  { id: 'cat-3', name: 'Kuş', parentId: null, slug: 'kus', description: 'Kafes, Yem & Salıncak', iconType: 'svg', iconSvgPreset: 'bird', isPromo: true },
+  { id: 'cat-4', name: 'Akvaryum', parentId: null, slug: 'akvaryum', description: 'Yem, Akvaryum & Filtre', iconType: 'svg', iconSvgPreset: 'fish', isPromo: true },
+  { id: 'cat-5', name: 'Kemirgen', parentId: null, slug: 'kemirgen', description: 'Tünel, Çark & Kafes', iconType: 'svg', iconSvgPreset: 'rabbit', isPromo: true },
   // Subcategories
   { id: 'cat-1-1', name: 'Kuru Mama', parentId: 'cat-1', slug: 'kedi-kuru-mama' },
   { id: 'cat-1-2', name: 'Yaş Mama', parentId: 'cat-1', slug: 'kedi-yas-mama' },
@@ -380,6 +380,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [brands, setBrands] = useState<Brand[]>([]);
   const [productReviews, setProductReviews] = useState<ProductReview[]>([]);
   const [isMounted, setIsMounted] = useState(false);
+  const [settings, setSettings] = useState<{ [key: string]: string }>({
+    customer_reviews_rating: '4.97',
+    customer_reviews_count: '875',
+    coupon_banner_visible: 'true',
+  });
 
   // Load from localstorage & Supabase on mount
   useEffect(() => {
@@ -465,7 +470,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
               id: c.id,
               name: c.name,
               parentId: c.parent_id || null,
-              slug: c.slug
+              slug: c.slug,
+              description: c.description || '',
+              iconType: c.icon_type || 'svg',
+              iconSvgPreset: c.icon_svg_preset || 'none',
+              iconImageUrl: c.icon_image_url || '',
+              isPromo: Boolean(c.is_promo)
             }));
           }
         } catch (err) {
@@ -474,6 +484,24 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         }
       } else {
         loadedCategories = localCategories ? JSON.parse(localCategories) : initialCategories;
+      }
+
+      // Load settings from Supabase
+      if (hasSupabase) {
+        try {
+          const { data, error } = await supabase.from('admin_settings').select('*');
+          if (!error && data) {
+            setSettings((prev) => {
+              const newSettings = { ...prev };
+              data.forEach((row: any) => {
+                newSettings[row.key] = row.value;
+              });
+              return newSettings;
+            });
+          }
+        } catch (err) {
+          console.error("Failed to load settings from Supabase:", err);
+        }
       }
 
       // Load orders from Supabase
@@ -846,7 +874,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           id: newCategory.id,
           name: newCategory.name,
           parent_id: newCategory.parentId || null,
-          slug: newCategory.slug
+          slug: newCategory.slug,
+          description: newCategory.description || '',
+          icon_type: newCategory.iconType || 'svg',
+          icon_svg_preset: newCategory.iconSvgPreset || 'none',
+          icon_image_url: newCategory.iconImageUrl || '',
+          is_promo: !!newCategory.isPromo
         });
         if (error) throw error;
       } catch (err) {
@@ -864,7 +897,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         const { error } = await supabase.from('categories').update({
           name: updatedCat.name,
           parent_id: updatedCat.parentId || null,
-          slug: updatedCat.slug
+          slug: updatedCat.slug,
+          description: updatedCat.description || '',
+          icon_type: updatedCat.iconType || 'svg',
+          icon_svg_preset: updatedCat.iconSvgPreset || 'none',
+          icon_image_url: updatedCat.iconImageUrl || '',
+          is_promo: !!updatedCat.isPromo
         }).eq('id', updatedCat.id);
         if (error) throw error;
       } catch (err) {
@@ -1306,6 +1344,21 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   };
 
+  const updateSetting = async (key: string, value: string) => {
+    setSettings((prev) => ({ ...prev, [key]: value }));
+    const hasSupabase = process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    if (hasSupabase) {
+      try {
+        const { error } = await supabase
+          .from('admin_settings')
+          .upsert({ key, value });
+        if (error) throw error;
+      } catch (err) {
+        console.error(`Failed to update setting ${key} in Supabase:`, err);
+      }
+    }
+  };
+
   // Action Auth States
   const [isActionAuthModalOpen, setIsActionAuthModalOpen] = useState(false);
   const [pendingAction, setPendingAction] = useState<(() => void) | null>(null);
@@ -1373,7 +1426,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         deleteProductReview,
         addOrder,
         updateOrderStatus,
-        requireActionAuth
+        requireActionAuth,
+        settings,
+        updateSetting
       }}
     >
       {children}

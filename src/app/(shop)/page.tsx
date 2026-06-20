@@ -23,9 +23,10 @@ import {
   Check
 } from 'lucide-react';
 import { playSound } from '../utils/sound';
+import { Category } from '../types';
 
 export default function ShopHomePage() {
-  const { products, addToCart, addToWishlist, wishlist, customerReviews } = useApp();
+  const { products, addToCart, addToWishlist, wishlist, customerReviews, settings, categories } = useApp();
 
   // Pick first 4 products as featured items
   const featuredProducts = products.slice(0, 4);
@@ -49,14 +50,33 @@ export default function ShopHomePage() {
     }
   };
 
-  // Quick categories list with icon details
-  const promoCategories = [
-    { id: 'cat-1', name: 'Kedi', icon: Cat, description: 'Mama, Kum & Oyuncaklar' },
-    { id: 'cat-2', name: 'Köpek', icon: Dog, description: 'Tasma, Mama & Aksesuar' },
-    { id: 'cat-3', name: 'Kuş', icon: Bird, description: 'Kafes, Yem & Salıncak' },
-    { id: 'cat-4', name: 'Akvaryum', icon: Fish, description: 'Yem, Akvaryum & Filtre' },
-    { id: 'cat-5', name: 'Kemirgen', icon: Rabbit, description: 'Tünel, Çark & Kafes' }
-  ];
+  // Filter promo categories from database categories list
+  const promoCategories = categories.filter(c => c.isPromo);
+
+  const getCategoryIcon = (cat: Category) => {
+    if (cat.iconType === 'image' && cat.iconImageUrl) {
+      return (
+        <div className="w-10 h-10 mb-3 rounded-full overflow-hidden flex items-center justify-center bg-zinc-50 border border-zinc-100 group-hover:scale-110 transition-transform duration-200">
+          <img 
+            src={cat.iconImageUrl} 
+            alt={cat.name} 
+            className="w-full h-full object-cover" 
+          />
+        </div>
+      );
+    }
+    
+    // Fallback to SVG presets
+    const preset = cat.iconSvgPreset || 'none';
+    let IconComponent = PawPrint;
+    if (preset === 'cat') IconComponent = Cat;
+    else if (preset === 'dog') IconComponent = Dog;
+    else if (preset === 'bird') IconComponent = Bird;
+    else if (preset === 'fish') IconComponent = Fish;
+    else if (preset === 'rabbit') IconComponent = Rabbit;
+
+    return <IconComponent className="w-10 h-10 mb-3 text-zinc-800 group-hover:scale-110 transition-transform duration-200" />;
+  };
 
   return (
     <div className="space-y-16 pb-16">
@@ -101,44 +121,48 @@ export default function ShopHomePage() {
 
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
           {promoCategories.map((cat) => {
-            const IconComponent = cat.icon;
             return (
               <Link 
                 key={cat.id} 
                 href={`/shop?category=${cat.id}`}
                 className="bg-white border border-zinc-200 hover:border-black rounded-lg p-6 text-center transition-all duration-250 cursor-pointer hover:shadow-md flex flex-col items-center justify-center group"
               >
-                <IconComponent className="w-10 h-10 mb-3 text-zinc-800 group-hover:scale-110 transition-transform duration-200" />
+                {getCategoryIcon(cat)}
                 <h3 className="font-bold text-base text-zinc-900 mb-1">{cat.name}</h3>
                 <p className="text-[11px] text-zinc-400 leading-tight">{cat.description}</p>
               </Link>
             );
           })}
+          {promoCategories.length === 0 && (
+            <p className="text-zinc-500 text-xs font-medium py-8 text-center col-span-full">Henüz öne çıkarılmış bir kategori bulunmuyor.</p>
+          )}
         </div>
       </section>
 
       {/* Coupon Banner */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-black text-white rounded-xl p-8 sm:p-12 relative overflow-hidden flex flex-col md:flex-row justify-between items-center gap-8 shadow-lg">
-          <div className="absolute top-0 right-0 w-80 h-80 bg-zinc-800 rounded-full blur-3xl opacity-20 -mr-20 -mt-20" />
-          <div className="space-y-3 relative z-10 text-center md:text-left">
-            <span className="text-zinc-400 text-xs uppercase font-bold tracking-wider">
-              Yeni Üyelere Özel Fırsat
-            </span>
-            <h3 className="text-2xl sm:text-4xl font-heading font-bold">İlk Siparişinizde %20 İndirim Kazanın!</h3>
-            <p className="text-sm text-zinc-400 max-w-lg">
-              Sepet adımında indirim kodu alanına <strong className="text-white">PATI20</strong> yazarak anında indirimden yararlanın.
-            </p>
+      {settings.coupon_banner_visible !== 'false' && (
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="bg-black text-white rounded-xl p-8 sm:p-12 relative overflow-hidden flex flex-col md:flex-row justify-between items-center gap-8 shadow-lg">
+            <div className="absolute top-0 right-0 w-80 h-80 bg-zinc-800 rounded-full blur-3xl opacity-20 -mr-20 -mt-20" />
+            <div className="space-y-3 relative z-10 text-center md:text-left">
+              <span className="text-zinc-400 text-xs uppercase font-bold tracking-wider">
+                Yeni Üyelere Özel Fırsat
+              </span>
+              <h3 className="text-2xl sm:text-4xl font-heading font-bold">İlk Siparişinizde %20 İndirim Kazanın!</h3>
+              <p className="text-sm text-zinc-400 max-w-lg">
+                Sepet adımında indirim kodu alanına <strong className="text-white">PATI20</strong> yazarak anında indirimden yararlanın.
+              </p>
+            </div>
+            <div className="relative z-10 flex-shrink-0 bg-zinc-900 border border-zinc-800 rounded-lg p-5 text-center flex flex-col items-center w-full md:w-auto">
+              <span className="text-xs text-zinc-400 uppercase tracking-widest font-semibold mb-1">Kupon Kodu</span>
+              <span className="text-2xl font-bold font-mono tracking-widest text-white border-2 border-dashed border-white/30 rounded-md px-6 py-2.5 bg-black">
+                PATI20
+              </span>
+              <span className="text-[10px] text-zinc-500 mt-2">Son gün geçerlilik: Sınırlı</span>
+            </div>
           </div>
-          <div className="relative z-10 flex-shrink-0 bg-zinc-900 border border-zinc-800 rounded-lg p-5 text-center flex flex-col items-center w-full md:w-auto">
-            <span className="text-xs text-zinc-400 uppercase tracking-widest font-semibold mb-1">Kupon Kodu</span>
-            <span className="text-2xl font-bold font-mono tracking-widest text-white border-2 border-dashed border-white/30 rounded-md px-6 py-2.5 bg-black">
-              PATI20
-            </span>
-            <span className="text-[10px] text-zinc-500 mt-2">Son gün geçerlilik: Sınırsız</span>
-          </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Featured Products Grid */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -276,7 +300,7 @@ export default function ShopHomePage() {
               <Star className="w-4 h-4 fill-black text-black" />
             </div>
             <span className="text-xs text-zinc-605 font-bold">
-              4.97 ★ (875)
+              {settings?.customer_reviews_rating || '4.97'} ★ ({settings?.customer_reviews_count || '875'})
             </span>
           </div>
         </div>

@@ -16,7 +16,45 @@ import {
 import Link from 'next/link';
 
 export default function AdminDashboardPage() {
-  const { orders, products, coupons, updateOrderStatus } = useApp();
+  const { orders, products, coupons, updateOrderStatus, settings, updateSetting, requireActionAuth } = useApp();
+
+  const [rating, setRating] = React.useState('4.97');
+  const [count, setCount] = React.useState('875');
+  const [couponVisible, setCouponVisible] = React.useState(true);
+  const [isSaving, setIsSaving] = React.useState(false);
+  const [saveMessage, setSaveMessage] = React.useState('');
+
+  React.useEffect(() => {
+    if (settings) {
+      if (settings.customer_reviews_rating) {
+        setRating(settings.customer_reviews_rating);
+      }
+      if (settings.customer_reviews_count) {
+        setCount(settings.customer_reviews_count);
+      }
+      if (settings.coupon_banner_visible !== undefined) {
+        setCouponVisible(settings.coupon_banner_visible !== 'false');
+      }
+    }
+  }, [settings]);
+
+  const handleSaveSettings = () => {
+    requireActionAuth(async () => {
+      setIsSaving(true);
+      setSaveMessage('');
+      try {
+        await updateSetting('customer_reviews_rating', rating);
+        await updateSetting('customer_reviews_count', count);
+        await updateSetting('coupon_banner_visible', couponVisible ? 'true' : 'false');
+        setSaveMessage('Ayarlar başarıyla kaydedildi.');
+        setTimeout(() => setSaveMessage(''), 3000);
+      } catch (err) {
+        setSaveMessage('Ayarlar kaydedilirken hata oluştu.');
+      } finally {
+        setIsSaving(false);
+      }
+    });
+  };
 
   // Metrics calculations
   const totalRevenue = orders.reduce((sum, o) => sum + o.total, 0);
@@ -128,46 +166,113 @@ export default function AdminDashboardPage() {
         </section>
       )}
 
-      {/* Recent Orders Link Card */}
-      <section className="bg-white border border-zinc-200 rounded-xl p-6 shadow-xs space-y-4">
-        <div className="flex justify-between items-center border-b border-zinc-100 pb-3">
-          <h3 className="text-lg font-bold text-black">Son Sipariş Durumu</h3>
-          <Link href="/admin/orders" className="text-xs font-bold underline hover:opacity-85 text-black">
-            Tüm Siparişleri Yönet (Sipariş Yönetim Sayfası) →
-          </Link>
-        </div>
-
-        {orders.length === 0 ? (
-          <p className="text-zinc-550 text-xs font-medium py-4 text-center">Henüz sipariş bulunmuyor.</p>
-        ) : (
-          <div className="space-y-3">
-            {recentOrders.slice(0, 3).map((order) => (
-              <div key={order.id} className="flex justify-between items-center p-3.5 bg-zinc-50 rounded-lg border border-zinc-150 text-xs hover:border-black transition-all">
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <span className="font-bold text-black font-mono select-all">{order.trackingCode}</span>
-                    <span className="text-zinc-400">|</span>
-                    <span className="font-semibold text-zinc-700">{order.customerName}</span>
-                  </div>
-                  <span className="text-[10px] text-zinc-400 block">{order.date}</span>
-                </div>
-                <div className="flex items-center gap-4">
-                  <span className="font-bold font-mono text-black">{order.total.toFixed(2)} TL</span>
-                  <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
-                    order.status === 'Hazırlanıyor' 
-                      ? 'bg-amber-50 text-amber-700 border border-amber-200' 
-                      : order.status === 'Kargoya Verildi' 
-                        ? 'bg-blue-50 text-blue-700 border border-blue-200'
-                        : 'bg-green-50 text-green-700 border border-green-200'
-                  }`}>
-                    {order.status}
-                  </span>
-                </div>
-              </div>
-            ))}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Recent Orders Link Card */}
+        <section className="bg-white border border-zinc-200 rounded-xl p-6 shadow-xs space-y-4">
+          <div className="flex justify-between items-center border-b border-zinc-100 pb-3">
+            <h3 className="text-lg font-bold text-black">Son Sipariş Durumu</h3>
+            <Link href="/admin/orders" className="text-xs font-bold underline hover:opacity-85 text-black">
+              Tüm Siparişleri Yönet (Sipariş Yönetim Sayfası) →
+            </Link>
           </div>
-        )}
-      </section>
+
+          {orders.length === 0 ? (
+            <p className="text-zinc-550 text-xs font-medium py-4 text-center">Henüz sipariş bulunmuyor.</p>
+          ) : (
+            <div className="space-y-3">
+              {recentOrders.slice(0, 3).map((order) => (
+                <div key={order.id} className="flex justify-between items-center p-3.5 bg-zinc-50 rounded-lg border border-zinc-150 text-xs hover:border-black transition-all">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span className="font-bold text-black font-mono select-all">{order.trackingCode}</span>
+                      <span className="text-zinc-400">|</span>
+                      <span className="font-semibold text-zinc-700">{order.customerName}</span>
+                    </div>
+                    <span className="text-[10px] text-zinc-400 block">{order.date}</span>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <span className="font-bold font-mono text-black">{order.total.toFixed(2)} TL</span>
+                    <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+                      order.status === 'Hazırlanıyor' 
+                        ? 'bg-amber-50 text-amber-700 border border-amber-200' 
+                        : order.status === 'Kargoya Verildi' 
+                          ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                          : 'bg-green-50 text-green-700 border border-green-200'
+                    }`}>
+                      {order.status}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+
+        {/* Genel Mağaza Ayarları Card */}
+        <section className="bg-white border border-zinc-200 rounded-xl p-6 shadow-xs space-y-4">
+          <div className="flex justify-between items-center border-b border-zinc-100 pb-3">
+            <h3 className="text-lg font-bold text-black">Genel Mağaza Ayarları</h3>
+            <span className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider bg-zinc-100 px-2 py-0.5 rounded">
+              Yönetici Yetkisi
+            </span>
+          </div>
+
+          <div className="space-y-4">
+            {/* Average Rating Input */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-zinc-700 block">Müşteri Yorumları Yıldız Derecesi</label>
+              <input
+                type="text"
+                placeholder="Örn: 4.97"
+                value={rating}
+                onChange={(e) => setRating(e.target.value)}
+                className="w-full bg-white border border-zinc-200 focus:border-black rounded-lg px-3 py-2 text-xs font-mono text-black outline-none transition-all"
+              />
+            </div>
+
+            {/* Reviews Count Input */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-zinc-700 block">Toplam Yorum Sayısı</label>
+              <input
+                type="number"
+                placeholder="Örn: 875"
+                value={count}
+                onChange={(e) => setCount(e.target.value)}
+                className="w-full bg-white border border-zinc-200 focus:border-black rounded-lg px-3 py-2 text-xs font-mono text-black outline-none transition-all"
+              />
+            </div>
+
+            {/* Coupon Banner Visibility Toggle */}
+            <div className="flex items-center justify-between py-2 border-t border-b border-zinc-100">
+              <div className="space-y-0.5">
+                <span className="text-xs font-bold text-zinc-700 block">Kupon Bannerı Gösterimi</span>
+                <span className="text-[10px] text-zinc-400 block">Anasayfadaki ilk sipariş %20 indirim bannerı.</span>
+              </div>
+              <label className="relative inline-flex items-center cursor-pointer select-none">
+                <input 
+                  type="checkbox" 
+                  checked={couponVisible}
+                  onChange={(e) => setCouponVisible(e.target.checked)}
+                  className="sr-only peer"
+                />
+                <div className="w-9 h-5 bg-zinc-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-zinc-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-black"></div>
+              </label>
+            </div>
+
+            {/* Save Message & Button */}
+            <div className="flex items-center justify-between pt-2">
+              <span className="text-[11px] text-zinc-500 font-semibold">{saveMessage}</span>
+              <button
+                onClick={handleSaveSettings}
+                disabled={isSaving}
+                className="bg-black hover:bg-zinc-800 disabled:bg-zinc-300 text-white font-bold text-xs px-4 py-2.5 rounded-lg transition-all cursor-pointer shadow-sm hover:shadow active:scale-98"
+              >
+                {isSaving ? 'Kaydediliyor...' : 'Ayarları Kaydet'}
+              </button>
+            </div>
+          </div>
+        </section>
+      </div>
     </div>
   );
 }
