@@ -10,7 +10,6 @@ import {
   ChevronRight, 
   CheckCircle,
   Truck,
-  ArrowRight,
   ClipboardCheck,
   Clipboard,
   PawPrint
@@ -26,11 +25,7 @@ export default function CheckoutPage() {
   const [phone, setPhone] = useState('');
   const [address, setAddress] = useState('');
   
-  // Card inputs
-  const [cardName, setCardName] = useState('');
-  const [cardNumber, setCardNumber] = useState('');
-  const [cardExpiry, setCardExpiry] = useState('');
-  const [cardCvc, setCardCvc] = useState('');
+  // Note: Card input fields removed — this is a demo app without real payment processing.
 
   // Coupon read from session storage (applied in cart drawer)
   const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; type: 'percentage' | 'fixed'; value: number } | null>(null);
@@ -231,67 +226,40 @@ export default function CheckoutPage() {
             </div>
           </div>
 
-          {/* Simulated Payment */}
+          {/* Payment Info — Demo Notice */}
           <div className="bg-white border border-zinc-200 rounded-xl p-5 sm:p-6 space-y-4 shadow-xs">
             <h3 className="text-base font-bold text-black border-b border-zinc-100 pb-2">
-              2. Ödeme Bilgileri (Kart ile Güvenli Ödeme)
+              2. Ödeme Bilgileri
             </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div className="space-y-1 sm:col-span-3">
-                <label className="text-xs font-bold text-zinc-500">Kart Üzerindeki İsim</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="Örn: Ahmet Yılmaz"
-                  value={cardName}
-                  onChange={(e) => setCardName(e.target.value)}
-                  className="w-full bg-zinc-50 border border-zinc-200 rounded-md p-2.5 text-xs focus:outline-hidden focus:border-black"
-                />
-              </div>
 
-              <div className="space-y-1 sm:col-span-3 relative">
-                <label className="text-xs font-bold text-zinc-500">Kart Numarası</label>
-                <div className="relative">
-                  <input
-                    type="text"
-                    required
-                    placeholder="4000 1234 5678 9010"
-                    maxLength={19}
-                    value={cardNumber}
-                    onChange={(e) => setCardNumber(e.target.value)}
-                    className="w-full bg-zinc-50 border border-zinc-200 rounded-md p-2.5 pl-10 text-xs focus:outline-hidden focus:border-black"
-                  />
-                  <CreditCard className="w-4 h-4 text-zinc-400 absolute left-3 top-3" />
-                </div>
-              </div>
-
-              <div className="space-y-1 sm:col-span-2">
-                <label className="text-xs font-bold text-zinc-500">Son Kullanma Tarihi</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="AA/YY"
-                  maxLength={5}
-                  value={cardExpiry}
-                  onChange={(e) => setCardExpiry(e.target.value)}
-                  className="w-full bg-zinc-50 border border-zinc-200 rounded-md p-2.5 text-xs focus:outline-hidden focus:border-black text-center"
-                />
-              </div>
-
+            {/* Demo disclaimer */}
+            <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 flex gap-3 items-start">
+              <svg className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+              </svg>
               <div className="space-y-1">
-                <label className="text-xs font-bold text-zinc-500">Güvenlik Kodu (CVC)</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="123"
-                  maxLength={3}
-                  value={cardCvc}
-                  onChange={(e) => setCardCvc(e.target.value)}
-                  className="w-full bg-zinc-50 border border-zinc-200 rounded-md p-2.5 text-xs focus:outline-hidden focus:border-black text-center"
-                />
+                <p className="text-xs font-bold text-amber-800">Demo / Gösterim Modu</p>
+                <p className="text-xs text-amber-700 leading-relaxed">
+                  Bu, gerçek ödeme altyapısına sahip olmayan bir <strong>demo e-ticaret sitesidir</strong>. Herhangi bir ödeme işlemi gerçekleştirilmemektedir. Gerçek kart bilgilerinizi girmenize gerek yoktur.
+                </p>
+                <p className="text-xs text-amber-600 mt-1">
+                  Gerçek ödeme için <strong>iyzico</strong> veya <strong>Stripe</strong> entegrasyonu gereklidir.
+                </p>
+              </div>
+            </div>
+
+            {/* Simulated payment confirmation */}
+            <div className="flex items-center gap-3 bg-zinc-50 border border-zinc-200 rounded-lg p-3.5">
+              <div className="w-8 h-8 bg-zinc-900 rounded-full flex items-center justify-center flex-shrink-0">
+                <CreditCard className="w-4 h-4 text-white" />
+              </div>
+              <div>
+                <p className="text-xs font-bold text-zinc-800">Kapıda Ödeme / Havale ile Ödeme</p>
+                <p className="text-[10px] text-zinc-500 mt-0.5">Sipariş tamamlandıktan sonra ödeme detayları size iletilecektir.</p>
               </div>
             </div>
           </div>
+
 
           <button
             type="submit"

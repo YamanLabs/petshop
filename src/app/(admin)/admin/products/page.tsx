@@ -64,6 +64,53 @@ function AdminProductsContent() {
   const [metaDescription, setMetaDescription] = useState('');
   const [metaKeywords, setMetaKeywords] = useState('');
   const [showSeoPanel, setShowSeoPanel] = useState(false);
+  const [isGeneratingSeo, setIsGeneratingSeo] = useState(false);
+
+  const handleGenerateSeoWithAI = async () => {
+    if (!title.trim()) {
+      alert('SEO verisi üretebilmek için lütfen önce "Ürün Başlığı" alanını doldurun.');
+      return;
+    }
+
+    setIsGeneratingSeo(true);
+    try {
+      const response = await fetch('/api/admin/generate-seo', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          title,
+          description,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('API isteği başarısız oldu.');
+      }
+
+      const data = await response.json();
+      if (data.error) {
+        throw new Error(data.error);
+      }
+
+      if (data.metaTitle) setMetaTitle(data.metaTitle);
+      if (data.metaDescription) setMetaDescription(data.metaDescription);
+      if (data.metaKeywords) setMetaKeywords(data.metaKeywords);
+      
+      alert('SEO verileri Gemini AI ile başarıyla oluşturuldu!');
+    } catch (err: any) {
+      console.error('Failed to generate SEO with AI, falling back to local method:', err);
+      alert(`Gemini API ile bağlantı kurulamadı. SEO alanları yerel yöntemle otomatik olarak dolduruluyor.`);
+      
+      // Fallback local method
+      setMetaTitle(`${title} | Zuzu Pet Co.`);
+      setMetaDescription(description ? (description.slice(0, 150) + (description.length > 150 ? '...' : '')) : `${title} en uygun fiyatlarla Zuzu Pet Co.'da!`);
+      setMetaKeywords(`${brand || 'zuzu'}, ${title.toLowerCase().split(' ').slice(0, 4).join(', ')}`);
+    } finally {
+      setIsGeneratingSeo(false);
+    }
+  };
 
   // Variations form states
   const [variations, setVariations] = useState<ProductVariation[]>([]);
@@ -435,6 +482,25 @@ function AdminProductsContent() {
 
                   {showSeoPanel && (
                     <div className="p-4 bg-white border-t border-zinc-150 space-y-4 animate-fadeIn">
+                      
+                      {/* AI Generator Banner */}
+                      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 bg-zinc-50 p-3.5 rounded-lg border border-zinc-200">
+                        <div className="space-y-0.5">
+                          <span className="text-xs font-bold text-black block">Yapay Zeka Yardımı (Gemini AI)</span>
+                          <span className="text-[10px] text-zinc-500 block leading-normal">
+                            Ürün başlığı ve açıklamasına göre otomatik SEO başlığı, açıklama ve anahtar kelimeleri oluşturun.
+                          </span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={handleGenerateSeoWithAI}
+                          disabled={isGeneratingSeo}
+                          className="bg-black hover:bg-zinc-800 disabled:bg-zinc-300 text-white font-bold text-[10px] uppercase tracking-wider px-3.5 py-2 rounded-md transition-all cursor-pointer shadow-xs disabled:cursor-not-allowed w-full sm:w-auto text-center"
+                        >
+                          {isGeneratingSeo ? 'Oluşturuluyor...' : 'AI ile SEO Oluştur'}
+                        </button>
+                      </div>
+
                       <div className="space-y-1">
                         <label className="text-xs font-bold text-zinc-500">Meta Başlık (Title Tag)</label>
                         <input

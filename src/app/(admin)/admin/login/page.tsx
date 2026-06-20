@@ -9,7 +9,12 @@ import { playSound } from '../../../utils/sound';
 export default function AdminLoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirectPath = searchParams.get('redirect') || '/admin';
+  const rawRedirect = searchParams.get('redirect') || '/admin';
+  // Prevent Open Redirect: only allow internal /admin paths
+  const redirectPath = rawRedirect.startsWith('/admin') && !rawRedirect.includes('://') && !rawRedirect.startsWith('//')
+    ? rawRedirect
+    : '/admin';
+
 
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);

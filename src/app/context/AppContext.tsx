@@ -68,305 +68,14 @@ interface AppContextType {
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
-const initialCategories: Category[] = [
-  { id: 'cat-1', name: 'Kedi', parentId: null, slug: 'kedi', description: 'Mama, Kum & Oyuncaklar', iconType: 'svg', iconSvgPreset: 'cat', isPromo: true },
-  { id: 'cat-2', name: 'Köpek', parentId: null, slug: 'kopek', description: 'Tasma, Mama & Aksesuar', iconType: 'svg', iconSvgPreset: 'dog', isPromo: true },
-  { id: 'cat-3', name: 'Kuş', parentId: null, slug: 'kus', description: 'Kafes, Yem & Salıncak', iconType: 'svg', iconSvgPreset: 'bird', isPromo: true },
-  { id: 'cat-4', name: 'Akvaryum', parentId: null, slug: 'akvaryum', description: 'Yem, Akvaryum & Filtre', iconType: 'svg', iconSvgPreset: 'fish', isPromo: true },
-  { id: 'cat-5', name: 'Kemirgen', parentId: null, slug: 'kemirgen', description: 'Tünel, Çark & Kafes', iconType: 'svg', iconSvgPreset: 'rabbit', isPromo: true },
-  // Subcategories
-  { id: 'cat-1-1', name: 'Kuru Mama', parentId: 'cat-1', slug: 'kedi-kuru-mama' },
-  { id: 'cat-1-2', name: 'Yaş Mama', parentId: 'cat-1', slug: 'kedi-yas-mama' },
-  { id: 'cat-1-3', name: 'Kedi Kumu', parentId: 'cat-1', slug: 'kedi-kumu' },
-  { id: 'cat-2-1', name: 'Kuru Mama', parentId: 'cat-2', slug: 'kopek-kuru-mama' },
-  { id: 'cat-2-2', name: 'Köpek Tasması', parentId: 'cat-2', slug: 'kopek-tasmasi' },
-  { id: 'cat-2-3', name: 'Köpek Oyuncağı', parentId: 'cat-2', slug: 'kopek-oyuncagi' },
-];
-
-// Initial Coupons
-const initialCoupons: Coupon[] = [
-  { code: 'ZUZU20', type: 'percentage', value: 20, active: true, usageCount: 5 },
-  { code: 'YENI10', type: 'percentage', value: 10, active: true, usageCount: 12 },
-  { code: 'MAMA50', type: 'fixed', value: 50, active: true, usageCount: 2 },
-];
-
-// Initial Products
-const initialProducts: Product[] = [
-  {
-    id: 'prod-1',
-    title: 'N&D Prime Kuzu Etli Yetişkin Kedi Maması',
-    description: 'Yetişkin kediler için tahılsız, kuzu etli ve yaban mersinli yüksek kaliteli kedi maması. Kedinizin tüylerini canlandırır ve sağlıklı sindirim sağlar.',
-    price: 649,
-    originalPrice: 799,
-    image: '',
-    categoryId: 'cat-1-1',
-    brand: 'N&D',
-    stock: 12,
-    rating: 4.8,
-    reviews: [
-      { id: 'rev-1', customerName: 'Ahmet Y.', rating: 5, comment: 'Kedim bayılarak yiyor. Kesinlikle premium kalite.', date: '2026-06-10' },
-      { id: 'rev-2', customerName: 'Selin K.', rating: 4, comment: 'Kargo biraz geç geldi ama mama çok kaliteli.', date: '2026-06-12' }
-    ],
-    variations: [
-      { name: '1.5 kg', priceModifier: 0 },
-      { name: '5 kg', priceModifier: 1100 },
-      { name: '10 kg', priceModifier: 2200 }
-    ],
-    metaTitle: 'N&D Prime Kuzu Etli Yetişkin Kedi Maması | Zuzu Pet Co.',
-    metaDescription: 'Tahılsız kuzu etli N&D kedi maması en uygun fiyatlarla Zuzu Pet Co.\'da! Kediniz için en sağlıklı besin değerleri.',
-    metaKeywords: 'n&d kedi maması, kuzu etli kedi maması, tahılsız kedi maması'
-  },
-  {
-    id: 'prod-2',
-    title: 'GimCat Superfood Yaş Kedi Maması 85gr',
-    description: 'Kediler için vitamin ve taurin katkılı, sos içinde tavuklu and ıspanaklı nefis konserve yaş mama.',
-    price: 49,
-    originalPrice: 59,
-    image: '',
-    categoryId: 'cat-1-2',
-    brand: 'GimCat',
-    stock: 2, // Low stock alert will trigger in admin
-    rating: 4.5,
-    reviews: [
-      { id: 'rev-3', customerName: 'Merve B.', rating: 5, comment: 'Sosunu çok sevdi, tabakta hiç bırakmıyor.', date: '2026-06-15' }
-    ],
-    variations: [
-      { name: 'Tekli Paket', priceModifier: 0 },
-      { name: '6\'lı Paket', priceModifier: 220 }
-    ],
-    metaTitle: 'GimCat Superfood Yaş Kedi Maması 85gr | Zuzu Pet Co.',
-    metaDescription: 'Kediniz için vitamin deposu GimCat yaş mama en iyi fiyatla Zuzu Pet Co.\'da. Tavuklu ve ıspanaklı.',
-    metaKeywords: 'gimcat yaş mama, kedi konservesi, yaş kedi maması'
-  },
-  {
-    id: 'prod-3',
-    title: 'Pro Plan Medium Puppy Tavuklu Yavru Köpek Maması',
-    description: 'Orta ırk yavru köpekler için anne sütündeki antikorları içeren, bağışıklık sistemini destekleyici yavru köpek maması.',
-    price: 899,
-    originalPrice: 999,
-    image: '',
-    categoryId: 'cat-2-1',
-    brand: 'Pro Plan',
-    stock: 15,
-    rating: 4.9,
-    reviews: [
-      { id: 'rev-4', customerName: 'Barış A.', rating: 5, comment: 'Yavru golden köpeğim için aldım, gelişimi çok iyi gidiyor.', date: '2026-06-08' }
-    ],
-    variations: [
-      { name: '3 kg', priceModifier: 0 },
-      { name: '12 kg', priceModifier: 1800 }
-    ],
-    metaTitle: 'Pro Plan Yavru Köpek Maması | Zuzu Pet Co.',
-    metaDescription: 'Pro Plan orta ırk yavru köpek maması ile köpeğinizin gelişimini destekleyin. Taze tavuk etli formül Zuzu Pet Co.\'da.',
-    metaKeywords: 'pro plan köpek maması, yavru köpek maması, tavuklu köpek maması'
-  },
-  {
-    id: 'prod-4',
-    title: 'Premium Deri Köpek Göğüs Tasması',
-    description: 'Yumuşak dolgulu, hakiki deriden üretilmiş, ayarlanabilir ve dayanıklı köpek göğüs tasması. Metal tokaları paslanmazdır.',
-    price: 349,
-    image: '',
-    categoryId: 'cat-2-2',
-    brand: 'DeriSan',
-    stock: 5,
-    rating: 4.2,
-    reviews: [
-      { id: 'rev-5', customerName: 'Zeynep H.', rating: 4, comment: 'Çok şık durdu ama biraz sert bir deri. Zamanla yumuşar umarım.', date: '2026-06-14' }
-    ],
-    variations: [
-      { name: 'S', priceModifier: 0 },
-      { name: 'M', priceModifier: 50 },
-      { name: 'L', priceModifier: 100 }
-    ],
-    metaTitle: 'Deri Köpek Göğüs Tasması | Zuzu Pet Co.',
-    metaDescription: 'Hakiki deriden üretilmiş sağlam göğüs tasması köpekleriniz için konforlu ve şık Zuzu Pet Co.\'da.',
-    metaKeywords: 'köpek tasması, göğüs tasması, deri köpek tasması'
-  },
-  {
-    id: 'prod-5',
-    title: 'Doğal Bentonit Bentonit Kokusuz Kedi Kumu 10L',
-    description: 'Ultra topaklaşan, tozutma yapmayan, kokuları hapseden %100 doğal beyaz bentonit kedi kumu.',
-    price: 189,
-    originalPrice: 229,
-    image: '',
-    categoryId: 'cat-1-3',
-    brand: 'CleanPaws',
-    stock: 25,
-    rating: 4.4,
-    reviews: [],
-    metaTitle: 'Doğal Bentonit Kedi Kumu 10L | Zuzu Pet Co.',
-    metaDescription: 'Tozsuz ve süper topaklanan doğal kedi kumu en iyi fiyatla Zuzu Pet Co.\'da.',
-    metaKeywords: 'kedi kumu, bentonit kedi kumu, tozsuz kedi kumu'
-  },
-  {
-    id: 'prod-6',
-    title: 'Doğal Ahşap Kuş Kafesi & Salıncak Seti',
-    description: 'Kanarya, muhabbet kuşu ve finch gibi küçük kafes kuşları için el yapımı ahşap tünekli lüks kafes ve salıncak set.',
-    price: 450,
-    image: '',
-    categoryId: 'cat-3',
-    brand: 'WoodyPet',
-    stock: 3, // Low stock alert
-    rating: 4.6,
-    reviews: [
-      { id: 'rev-6', customerName: 'Can P.', rating: 5, comment: 'Çok estetik ve kaliteli malzeme. Kuşum hemen alıştı.', date: '2026-06-11' }
-    ],
-    metaTitle: 'Ahşap Kuş Kafesi Seti | Zuzu Pet Co.',
-    metaDescription: 'Doğal ahşaptan üretilmiş sağlıklı muhabbet kuşu kafesi ve salıncak takımı Zuzu Pet Co.\'da.',
-    metaKeywords: 'kuş kafesi, ahşap kafes, muhabbet kuşu kafesi'
-  },
-  {
-    id: 'prod-7',
-    title: 'Cam Akvaryum & Şelale Filtre Başlangıç Seti 20L',
-    description: 'Balık beslemeye yeni başlayanlar için şelale filtre, LED aydınlatma ve dekoratif kum içeren 20 litrelik cam akvaryum seti.',
-    price: 799,
-    originalPrice: 899,
-    image: '',
-    categoryId: 'cat-4',
-    brand: 'AquaClear',
-    stock: 8,
-    rating: 4.7,
-    reviews: [],
-    metaTitle: 'Cam Akvaryum Başlangıç Seti 20L | Zuzu Pet Co.',
-    metaDescription: 'Şelale filtreli ve led ışıklı başlangıç akvaryumu Zuzu Pet Co.\'da. Kurulumu kolay, şık tasarım.',
-    metaKeywords: 'akvaryum seti, 20l akvaryum, balık akvaryumu'
-  },
-  {
-    id: 'prod-8',
-    title: 'Kemirgen & Hamster Oyun Parklı Kafes',
-    description: 'Hamster ve guinea pigler için çok katlı, tünelli, çarklı ve beslenme üniteli eğlenceli yaşam alanı kafesi.',
-    price: 299,
-    image: '',
-    categoryId: 'cat-5',
-    brand: 'Hammy',
-    stock: 1, // Low stock alert
-    rating: 4.3,
-    reviews: [],
-    metaTitle: 'Tünelli Hamster Kafesi | Zuzu Pet Co.',
-    metaDescription: 'Hamsterınız için kaydıraklı ve oyun parklı konforlu kafes seçeneği Zuzu Pet Co.\'da.',
-    metaKeywords: 'hamster kafesi, guinea pig kafesi, kemirgen kafesi'
-  }
-];
-
-// Initial Orders
-const initialOrders: Order[] = [
-  {
-    id: 'order-1',
-    trackingCode: 'PK-98218-XYZ',
-    customerName: 'Fatma Demir',
-    email: 'fatma@example.com',
-    phone: '0555 123 4567',
-    address: 'Atatürk Mh. İstiklal Cd. No:45 D:2 Kadıköy / İstanbul',
-    items: [
-      { productId: 'prod-1', title: 'N&D Prime Kuzu Etli Yetişkin Kedi Maması', price: 649, quantity: 1, variation: '1.5 kg' },
-      { productId: 'prod-2', title: 'GimCat Superfood Yaş Kedi Maması 85gr', price: 49, quantity: 3, variation: 'Tekli Paket' }
-    ],
-    subtotal: 796,
-    discount: 159.2, // 20% applied
-    total: 636.8,
-    status: 'Kargoya Verildi',
-    date: '2026-06-18'
-  },
-  {
-    id: 'order-2',
-    trackingCode: 'PK-10293-ABC',
-    customerName: 'Kaan Kaya',
-    email: 'kaan@example.com',
-    phone: '0532 987 6543',
-    address: 'Çankaya Mh. Kennedy Cd. No:12 D:5 Çankaya / Ankara',
-    items: [
-      { productId: 'prod-3', title: 'Pro Plan Medium Puppy Tavuklu Yavru Köpek Maması', price: 899, quantity: 1, variation: '3 kg' }
-    ],
-    subtotal: 899,
-    discount: 0,
-    total: 899,
-    status: 'Hazırlanıyor',
-    date: '2026-06-19'
-  }
-];
-
-// Initial Customer Reviews Showcase
-const initialCustomerReviews: CustomerReview[] = [
-  {
-    id: 'rev-show-1',
-    text: "10 kg'lık kızım için 4 beden aldım. Rengi çok tatlı. Kargo da hemen ve sorunsuz geldi. Tavsiye...",
-    rating: 5,
-    userName: "Ecesu Altın",
-    productName: "Zuzu Signature Köpek Yağmurluğu"
-  },
-  {
-    id: 'rev-show-2',
-    text: "Bedeni tam oldu kumaşın kalitesi inanılmaz indirimden aldığım için fiyat çok iyi...",
-    rating: 5,
-    userName: "BETÜL BİLİR DİDİN",
-    productName: "Zuzu Flow Köpek Hoodie"
-  },
-  {
-    id: 'rev-show-3',
-    text: "Bedenden kaynaklı düşük verdim kalite güzel ama diğer ürünle aynı beden almamıza...",
-    rating: 3,
-    userName: "BETÜL BİLİR DİDİN",
-    productName: "Zuzu Cozy Köpek Polar Hırka"
-  },
-  {
-    id: 'rev-show-4',
-    text: "çok pratik ve tarz bir yağmurluk tüm arkadaşlarıma önerdim",
-    rating: 5,
-    userName: "nisan",
-    productName: "Zuzu Active Köpek Tasması"
-  },
-  {
-    id: 'rev-show-5',
-    text: "Kumaşı kalınlığı çok iyi tam kışlık, tüyleri hiç rahatsız etmiyor.",
-    rating: 5,
-    userName: "Hakan U.",
-    productName: "Zuzu Flow Köpek Hoodie"
-  },
-  {
-    id: 'rev-show-6',
-    text: "Köpeğim giyince çok rahat hareket ediyor, kalıpları gayet düzgün.",
-    rating: 4,
-    userName: "Ayşe T.",
-    productName: "Zuzu Cozy Köpek Polar Hırka"
-  }
-];
-
-const initialBrands: Brand[] = [
-  { id: 'brand-1', name: 'N&D', slug: 'n-and-d' },
-  { id: 'brand-2', name: 'GimCat', slug: 'gimcat' },
-  { id: 'brand-3', name: 'Pro Plan', slug: 'pro-plan' },
-  { id: 'brand-4', name: 'DeriSan', slug: 'derisan' },
-  { id: 'brand-5', name: 'CleanPaws', slug: 'cleanpaws' },
-  { id: 'brand-6', name: 'WoodyPet', slug: 'woodypet' },
-  { id: 'brand-7', name: 'AquaClear', slug: 'aquaclear' },
-  { id: 'brand-8', name: 'Hammy', slug: 'hammy' }
-];
-
-const initialNavbarLinks: NavbarLink[] = [
-  { id: 'nav-1', title: 'Tüm Ürünler', url: '/shop', parentId: null, sortOrder: 1 },
-  { id: 'nav-2', title: 'Kedi', url: '/shop?category=cat-1', parentId: null, sortOrder: 2 },
-  { id: 'nav-2-1', title: 'Kuru Mama', url: '/shop?category=cat-1-1', parentId: 'nav-2', sortOrder: 1 },
-  { id: 'nav-2-2', title: 'Yaş Mama', url: '/shop?category=cat-1-2', parentId: 'nav-2', sortOrder: 2 },
-  { id: 'nav-2-3', title: 'Kedi Kumu', url: '/shop?category=cat-1-3', parentId: 'nav-2', sortOrder: 3 },
-  { id: 'nav-3', title: 'Köpek', url: '/shop?category=cat-2', parentId: null, sortOrder: 3 },
-  { id: 'nav-3-1', title: 'Kuru Mama', url: '/shop?category=cat-2-1', parentId: 'nav-3', sortOrder: 1 },
-  { id: 'nav-3-2', title: 'Köpek Tasması', url: '/shop?category=cat-2-2', parentId: 'nav-3', sortOrder: 2 },
-  { id: 'nav-3-3', title: 'Köpek Oyuncağı', url: '/shop?category=cat-2-3', parentId: 'nav-3', sortOrder: 3 },
-  { id: 'nav-4', title: 'Kuş', url: '/shop?category=cat-3', parentId: null, sortOrder: 4 },
-  { id: 'nav-5', title: 'Akvaryum', url: '/shop?category=cat-4', parentId: null, sortOrder: 5 },
-  { id: 'nav-6', title: 'Kemirgen', url: '/shop?category=cat-5', parentId: null, sortOrder: 6 },
-  { id: 'nav-7', title: 'Biz Kimiz?', url: '/about-us', parentId: null, sortOrder: 7 },
-  { id: 'nav-8', title: 'Konumumuz', url: '/location', parentId: null, sortOrder: 8 }
-];
-
-const initialProductReviews: ProductReview[] = [
-  { id: 'prev-1', productId: 'prod-1', customerName: 'Ahmet Y.', rating: 5, comment: 'Kedim bayılarak yiyor. Kesinlikle premium kalite.', date: '2026-06-10' },
-  { id: 'prev-2', productId: 'prod-1', customerName: 'Selin K.', rating: 4, comment: 'Kargo biraz geç geldi ama mama çok kaliteli.', date: '2026-06-12' },
-  { id: 'prev-3', productId: 'prod-2', customerName: 'Merve B.', rating: 5, comment: 'Sosunu çok sevdi, tabakta hiç bırakmıyor.', date: '2026-06-15' },
-  { id: 'prev-4', productId: 'prod-3', customerName: 'Barış A.', rating: 5, comment: 'Yavru golden köpeğim için aldım, gelişimi çok iyi gidiyor.', date: '2026-06-08' },
-  { id: 'prev-5', productId: 'prod-4', customerName: 'Zeynep H.', rating: 4, comment: 'Çok şık durdu ama biraz sert bir deri. Zamanla yumuşar umarım.', date: '2026-06-14' },
-  { id: 'prev-6', productId: 'prod-6', customerName: 'Can P.', rating: 5, comment: 'Çok estetik ve kaliteli malzeme. Kuşum hemen alıştı.', date: '2026-06-11' }
-];
+const initialCategories: Category[] = [];
+const initialCoupons: Coupon[] = [];
+const initialProducts: Product[] = [];
+const initialOrders: Order[] = [];
+const initialCustomerReviews: CustomerReview[] = [];
+const initialBrands: Brand[] = [];
+const initialNavbarLinks: NavbarLink[] = [];
+const initialProductReviews: ProductReview[] = [];
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -395,8 +104,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   useEffect(() => {
     async function loadInitialData() {
       const localCategories = localStorage.getItem('pt_categories');
-      const localOrders = localStorage.getItem('pt_orders');
+      // NOTE: pt_orders is intentionally NOT read from localStorage (PII risk - H-4)
       const localCoupons = localStorage.getItem('pt_coupons');
+
       const localCart = localStorage.getItem('pt_cart');
       const localWishlist = localStorage.getItem('pt_wishlist');
       const localReviews = localStorage.getItem('pt_customer_reviews');
@@ -532,12 +242,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             }));
           }
         } catch (err) {
-          console.error("Failed to load orders from Supabase, falling back to LocalStorage:", err);
-          loadedOrders = localOrders ? JSON.parse(localOrders) : initialOrders;
+          console.error("Failed to load orders from Supabase:", err);
+          loadedOrders = initialOrders; // No localStorage fallback for orders (PII risk - H-4)
         }
       } else {
-        loadedOrders = localOrders ? JSON.parse(localOrders) : initialOrders;
+        loadedOrders = initialOrders; // No localStorage fallback for orders (PII risk - H-4)
       }
+
 
       // Load customer reviews from Supabase
       let loadedCustomerReviews: CustomerReview[] = [];
@@ -675,10 +386,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     localStorage.setItem('pt_categories', JSON.stringify(categories));
   }, [categories, isMounted]);
 
-  useEffect(() => {
-    if (!isMounted) return;
-    localStorage.setItem('pt_orders', JSON.stringify(orders));
-  }, [orders, isMounted]);
+  // NOTE: Orders are intentionally NOT cached in localStorage.
+  // They contain PII (name, phone, address, email) and are persisted in Supabase.
+  // Caching them in the browser would be a KVKK/GDPR risk. (H-4)
+
 
   useEffect(() => {
     if (!isMounted) return;
