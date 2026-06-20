@@ -388,9 +388,6 @@ function ShopLayoutContent({ children }: { children: React.ReactNode }) {
             <p className="text-xs text-zinc-400">
               © {new Date().getFullYear()} Zuzu Pet Co. Tüm Hakları Saklıdır.
             </p>
-            <p className="text-xs text-zinc-400 hover:text-black cursor-pointer transition-colors flex items-center gap-1">
-              <Link href="/admin" className="flex items-center gap-1">Yönetici Paneli Girişi <Settings className="w-3 h-3" /></Link>
-            </p>
           </div>
         </div>
       </footer>
