@@ -358,11 +358,19 @@ function ShopCatalogContent() {
                     </button>
 
                     {/* Image */}
-                    <Link href={`/product/${product.id}`} className="block relative aspect-square overflow-hidden cursor-pointer border-b border-zinc-150">
-                      <div className="w-full h-full bg-zinc-900 flex flex-col items-center justify-center gap-1.5 p-4 text-center group-hover:bg-zinc-800 transition-colors">
-                        <PawPrint className="w-7 h-7 text-white/50" />
-                        <span className="text-[9px] font-bold text-white/60 tracking-wider">GÖRSEL YOK</span>
-                      </div>
+                    <Link href={`/product/${product.id}`} className="block relative aspect-square overflow-hidden cursor-pointer border-b border-zinc-150 bg-zinc-50">
+                      {product.image ? (
+                        <img 
+                          src={product.image} 
+                          alt={product.title} 
+                          className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-105"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-zinc-900 flex flex-col items-center justify-center gap-1.5 p-4 text-center group-hover:bg-zinc-800 transition-colors">
+                          <PawPrint className="w-7 h-7 text-white/50" />
+                          <span className="text-[9px] font-bold text-white/60 tracking-wider">GÖRSEL YOK</span>
+                        </div>
+                      )}
                       {product.originalPrice && (
                         <span className="absolute bottom-3 left-3 bg-red-650 text-white text-[10px] font-bold px-2 py-0.5 rounded-sm uppercase tracking-wider">
                           İndirim

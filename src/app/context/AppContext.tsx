@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { Product, Category, Order, Coupon, Review, ProductVariation, CustomerReview } from '../types';
+import { Product, Category, Order, Coupon, Review, ProductVariation, CustomerReview, NavbarLink, Brand, ProductReview } from '../types';
 import { playSound } from '../utils/sound';
 import { supabase } from '../utils/supabase';
 
@@ -19,6 +19,9 @@ interface AppContextType {
   cart: CartItem[];
   wishlist: Product[];
   customerReviews: CustomerReview[];
+  navbarLinks: NavbarLink[];
+  brands: Brand[];
+  productReviews: ProductReview[];
   isMounted: boolean;
   addToCart: (product: Product, quantity?: number, variation?: string) => void;
   removeFromCart: (productId: string, variation?: string) => void;
@@ -39,6 +42,14 @@ interface AppContextType {
   addCustomerReview: (review: Omit<CustomerReview, 'id'>) => void;
   updateCustomerReview: (review: CustomerReview) => void;
   deleteCustomerReview: (reviewId: string) => void;
+  addNavbarLink: (link: Omit<NavbarLink, 'id'>) => void;
+  updateNavbarLink: (link: NavbarLink) => void;
+  deleteNavbarLink: (linkId: string) => void;
+  addBrand: (brand: Omit<Brand, 'id'>) => void;
+  updateBrand: (brand: Brand) => void;
+  deleteBrand: (brandId: string) => void;
+  addProductReview: (review: Omit<ProductReview, 'id' | 'date'>) => void;
+  deleteProductReview: (reviewId: string) => void;
   addOrder: (orderData: {
     customerName: string;
     email: string;
@@ -318,6 +329,43 @@ const initialCustomerReviews: CustomerReview[] = [
   }
 ];
 
+const initialBrands: Brand[] = [
+  { id: 'brand-1', name: 'N&D', slug: 'n-and-d' },
+  { id: 'brand-2', name: 'GimCat', slug: 'gimcat' },
+  { id: 'brand-3', name: 'Pro Plan', slug: 'pro-plan' },
+  { id: 'brand-4', name: 'DeriSan', slug: 'derisan' },
+  { id: 'brand-5', name: 'CleanPaws', slug: 'cleanpaws' },
+  { id: 'brand-6', name: 'WoodyPet', slug: 'woodypet' },
+  { id: 'brand-7', name: 'AquaClear', slug: 'aquaclear' },
+  { id: 'brand-8', name: 'Hammy', slug: 'hammy' }
+];
+
+const initialNavbarLinks: NavbarLink[] = [
+  { id: 'nav-1', title: 'Tüm Ürünler', url: '/shop', parentId: null, sortOrder: 1 },
+  { id: 'nav-2', title: 'Kedi', url: '/shop?category=cat-1', parentId: null, sortOrder: 2 },
+  { id: 'nav-2-1', title: 'Kuru Mama', url: '/shop?category=cat-1-1', parentId: 'nav-2', sortOrder: 1 },
+  { id: 'nav-2-2', title: 'Yaş Mama', url: '/shop?category=cat-1-2', parentId: 'nav-2', sortOrder: 2 },
+  { id: 'nav-2-3', title: 'Kedi Kumu', url: '/shop?category=cat-1-3', parentId: 'nav-2', sortOrder: 3 },
+  { id: 'nav-3', title: 'Köpek', url: '/shop?category=cat-2', parentId: null, sortOrder: 3 },
+  { id: 'nav-3-1', title: 'Kuru Mama', url: '/shop?category=cat-2-1', parentId: 'nav-3', sortOrder: 1 },
+  { id: 'nav-3-2', title: 'Köpek Tasması', url: '/shop?category=cat-2-2', parentId: 'nav-3', sortOrder: 2 },
+  { id: 'nav-3-3', title: 'Köpek Oyuncağı', url: '/shop?category=cat-2-3', parentId: 'nav-3', sortOrder: 3 },
+  { id: 'nav-4', title: 'Kuş', url: '/shop?category=cat-3', parentId: null, sortOrder: 4 },
+  { id: 'nav-5', title: 'Akvaryum', url: '/shop?category=cat-4', parentId: null, sortOrder: 5 },
+  { id: 'nav-6', title: 'Kemirgen', url: '/shop?category=cat-5', parentId: null, sortOrder: 6 },
+  { id: 'nav-7', title: 'Biz Kimiz?', url: '/about-us', parentId: null, sortOrder: 7 },
+  { id: 'nav-8', title: 'Konumumuz', url: '/location', parentId: null, sortOrder: 8 }
+];
+
+const initialProductReviews: ProductReview[] = [
+  { id: 'prev-1', productId: 'prod-1', customerName: 'Ahmet Y.', rating: 5, comment: 'Kedim bayılarak yiyor. Kesinlikle premium kalite.', date: '2026-06-10' },
+  { id: 'prev-2', productId: 'prod-1', customerName: 'Selin K.', rating: 4, comment: 'Kargo biraz geç geldi ama mama çok kaliteli.', date: '2026-06-12' },
+  { id: 'prev-3', productId: 'prod-2', customerName: 'Merve B.', rating: 5, comment: 'Sosunu çok sevdi, tabakta hiç bırakmıyor.', date: '2026-06-15' },
+  { id: 'prev-4', productId: 'prod-3', customerName: 'Barış A.', rating: 5, comment: 'Yavru golden köpeğim için aldım, gelişimi çok iyi gidiyor.', date: '2026-06-08' },
+  { id: 'prev-5', productId: 'prod-4', customerName: 'Zeynep H.', rating: 4, comment: 'Çok şık durdu ama biraz sert bir deri. Zamanla yumuşar umarım.', date: '2026-06-14' },
+  { id: 'prev-6', productId: 'prod-6', customerName: 'Can P.', rating: 5, comment: 'Çok estetik ve kaliteli malzeme. Kuşum hemen alıştı.', date: '2026-06-11' }
+];
+
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -326,6 +374,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [cart, setCart] = useState<CartItem[]>([]);
   const [wishlist, setWishlist] = useState<Product[]>([]);
   const [customerReviews, setCustomerReviews] = useState<CustomerReview[]>([]);
+  const [navbarLinks, setNavbarLinks] = useState<NavbarLink[]>([]);
+  const [brands, setBrands] = useState<Brand[]>([]);
+  const [productReviews, setProductReviews] = useState<ProductReview[]>([]);
   const [isMounted, setIsMounted] = useState(false);
 
   // Load from localstorage & Supabase on mount
@@ -529,7 +580,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
               text: r.text,
               rating: Number(r.rating),
               userName: r.user_name,
-              productName: r.product_name
+              productName: r.product_name,
+              imageUrl: r.image_url || null
             }));
           } else {
             console.log("Supabase customer reviews table is empty. Seeding initial customer reviews...");
@@ -538,7 +590,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
               text: r.text,
               rating: r.rating,
               user_name: r.userName,
-              product_name: r.productName
+              product_name: r.productName,
+              image_url: r.imageUrl || null
             }));
             const { error: seedError } = await supabase.from('customer_reviews').insert(dbSeed);
             if (seedError) console.error("Failed to seed Supabase customer reviews:", seedError);
@@ -552,11 +605,137 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         loadedCustomerReviews = localReviews ? JSON.parse(localReviews) : initialCustomerReviews;
       }
 
-      setProducts(loadedProducts);
+      // Load navbar links from Supabase
+      let loadedNavbarLinks: NavbarLink[] = [];
+      if (hasSupabase) {
+        try {
+          const { data, error } = await supabase.from('navbar_links').select('*').order('sort_order', { ascending: true });
+          if (error) throw error;
+          if (data && data.length > 0) {
+            loadedNavbarLinks = data.map((n: any) => ({
+              id: n.id,
+              title: n.title,
+              url: n.url,
+              parentId: n.parent_id || null,
+              sortOrder: Number(n.sort_order ?? 0)
+            }));
+          } else {
+            console.log("Supabase navbar_links table is empty. Seeding initial links...");
+            const dbSeed = initialNavbarLinks.map(n => ({
+              id: n.id,
+              title: n.title,
+              url: n.url,
+              parent_id: n.parentId,
+              sort_order: n.sortOrder
+            }));
+            const { error: seedError } = await supabase.from('navbar_links').insert(dbSeed);
+            if (seedError) console.error("Failed to seed Supabase navbar links:", seedError);
+            loadedNavbarLinks = initialNavbarLinks;
+          }
+        } catch (err) {
+          console.error("Failed to load navbar links from Supabase, falling back to LocalStorage:", err);
+          const localNavbar = localStorage.getItem('pt_navbar_links');
+          loadedNavbarLinks = localNavbar ? JSON.parse(localNavbar) : initialNavbarLinks;
+        }
+      } else {
+        const localNavbar = localStorage.getItem('pt_navbar_links');
+        loadedNavbarLinks = localNavbar ? JSON.parse(localNavbar) : initialNavbarLinks;
+      }
+
+      // Load brands from Supabase
+      let loadedBrands: Brand[] = [];
+      if (hasSupabase) {
+        try {
+          const { data, error } = await supabase.from('brands').select('*');
+          if (error) throw error;
+          if (data && data.length > 0) {
+            loadedBrands = data.map((b: any) => ({
+              id: b.id,
+              name: b.name,
+              slug: b.slug,
+              logoUrl: b.logo_url || null
+            }));
+          } else {
+            console.log("Supabase brands table is empty. Seeding initial brands...");
+            const dbSeed = initialBrands.map(b => ({
+              id: b.id,
+              name: b.name,
+              slug: b.slug,
+              logo_url: b.logoUrl || null
+            }));
+            const { error: seedError } = await supabase.from('brands').insert(dbSeed);
+            if (seedError) console.error("Failed to seed Supabase brands:", seedError);
+            loadedBrands = initialBrands;
+          }
+        } catch (err) {
+          console.error("Failed to load brands from Supabase, falling back to LocalStorage:", err);
+          const localBrands = localStorage.getItem('pt_brands');
+          loadedBrands = localBrands ? JSON.parse(localBrands) : initialBrands;
+        }
+      } else {
+        const localBrands = localStorage.getItem('pt_brands');
+        loadedBrands = localBrands ? JSON.parse(localBrands) : initialBrands;
+      }
+
+      // Load product reviews from Supabase
+      let loadedProductReviews: ProductReview[] = [];
+      if (hasSupabase) {
+        try {
+          const { data, error } = await supabase.from('product_reviews').select('*').order('created_at', { ascending: false });
+          if (error) throw error;
+          if (data && data.length > 0) {
+            loadedProductReviews = data.map((pr: any) => ({
+              id: pr.id,
+              productId: pr.product_id,
+              customerName: pr.customer_name,
+              rating: Number(pr.rating),
+              comment: pr.comment,
+              date: pr.date
+            }));
+          } else {
+            console.log("Supabase product_reviews table is empty. Seeding initial product reviews...");
+            const dbSeed = initialProductReviews.map(pr => ({
+              id: pr.id,
+              product_id: pr.productId,
+              customer_name: pr.customerName,
+              rating: pr.rating,
+              comment: pr.comment,
+              date: pr.date
+            }));
+            const { error: seedError } = await supabase.from('product_reviews').insert(dbSeed);
+            if (seedError) console.error("Failed to seed Supabase product reviews:", seedError);
+            loadedProductReviews = initialProductReviews;
+          }
+        } catch (err) {
+          console.error("Failed to load product reviews from Supabase, falling back to LocalStorage:", err);
+          const localProdReviews = localStorage.getItem('pt_product_reviews');
+          loadedProductReviews = localProdReviews ? JSON.parse(localProdReviews) : initialProductReviews;
+        }
+      } else {
+        const localProdReviews = localStorage.getItem('pt_product_reviews');
+        loadedProductReviews = localProdReviews ? JSON.parse(localProdReviews) : initialProductReviews;
+      }
+
+      // Assign product reviews to their respective products for backward compatibility
+      const productsWithReviews = loadedProducts.map(p => ({
+        ...p,
+        reviews: loadedProductReviews.filter(pr => pr.productId === p.id).map(pr => ({
+          id: pr.id,
+          customerName: pr.customerName,
+          rating: pr.rating,
+          comment: pr.comment,
+          date: pr.date
+        }))
+      }));
+
+      setProducts(productsWithReviews);
       setCoupons(loadedCoupons);
       setCategories(loadedCategories);
       setOrders(loadedOrders);
       setCustomerReviews(loadedCustomerReviews);
+      setNavbarLinks(loadedNavbarLinks);
+      setBrands(loadedBrands);
+      setProductReviews(loadedProductReviews);
       setIsMounted(true);
     }
 
@@ -598,6 +777,21 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     if (!isMounted) return;
     localStorage.setItem('pt_customer_reviews', JSON.stringify(customerReviews));
   }, [customerReviews, isMounted]);
+
+  useEffect(() => {
+    if (!isMounted) return;
+    localStorage.setItem('pt_navbar_links', JSON.stringify(navbarLinks));
+  }, [navbarLinks, isMounted]);
+
+  useEffect(() => {
+    if (!isMounted) return;
+    localStorage.setItem('pt_brands', JSON.stringify(brands));
+  }, [brands, isMounted]);
+
+  useEffect(() => {
+    if (!isMounted) return;
+    localStorage.setItem('pt_product_reviews', JSON.stringify(productReviews));
+  }, [productReviews, isMounted]);
 
   // Cart operations
   const addToCart = (product: Product, quantity = 1, variation?: string) => {
@@ -990,7 +1184,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           text: newReview.text,
           rating: newReview.rating,
           user_name: newReview.userName,
-          product_name: newReview.productName
+          product_name: newReview.productName,
+          image_url: newReview.imageUrl || null
         });
         if (error) throw error;
       } catch (err) {
@@ -1009,7 +1204,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           text: updatedReview.text,
           rating: updatedReview.rating,
           user_name: updatedReview.userName,
-          product_name: updatedReview.productName
+          product_name: updatedReview.productName,
+          image_url: updatedReview.imageUrl || null
         }).eq('id', updatedReview.id);
         if (error) throw error;
       } catch (err) {
@@ -1032,6 +1228,195 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   };
 
+  // Navbar Links CRUD
+  const addNavbarLink = async (linkData: Omit<NavbarLink, 'id'>) => {
+    const newLink: NavbarLink = {
+      ...linkData,
+      id: `nav-${Date.now()}`
+    };
+    setNavbarLinks((prev) => [...prev, newLink].sort((a, b) => a.sortOrder - b.sortOrder));
+
+    const hasSupabase = process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    if (hasSupabase) {
+      try {
+        const { error } = await supabase.from('navbar_links').insert({
+          id: newLink.id,
+          title: newLink.title,
+          url: newLink.url,
+          parent_id: newLink.parentId || null,
+          sort_order: newLink.sortOrder
+        });
+        if (error) throw error;
+      } catch (err) {
+        console.error("Failed to add navbar link to Supabase:", err);
+      }
+    }
+  };
+
+  const updateNavbarLink = async (updatedLink: NavbarLink) => {
+    setNavbarLinks((prev) => 
+      prev.map((l) => l.id === updatedLink.id ? updatedLink : l).sort((a, b) => a.sortOrder - b.sortOrder)
+    );
+
+    const hasSupabase = process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    if (hasSupabase) {
+      try {
+        const { error } = await supabase.from('navbar_links').update({
+          title: updatedLink.title,
+          url: updatedLink.url,
+          parent_id: updatedLink.parentId || null,
+          sort_order: updatedLink.sortOrder
+        }).eq('id', updatedLink.id);
+        if (error) throw error;
+      } catch (err) {
+        console.error("Failed to update navbar link in Supabase:", err);
+      }
+    }
+  };
+
+  const deleteNavbarLink = async (linkId: string) => {
+    setNavbarLinks((prev) => prev.filter((l) => l.id !== linkId && l.parentId !== linkId));
+
+    const hasSupabase = process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    if (hasSupabase) {
+      try {
+        const { error } = await supabase.from('navbar_links').delete().eq('id', linkId);
+        if (error) throw error;
+      } catch (err) {
+        console.error("Failed to delete navbar link from Supabase:", err);
+      }
+    }
+  };
+
+  // Brands CRUD
+  const addBrand = async (brandData: Omit<Brand, 'id'>) => {
+    const newBrand: Brand = {
+      ...brandData,
+      id: `brand-${Date.now()}`
+    };
+    setBrands((prev) => [...prev, newBrand]);
+
+    const hasSupabase = process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    if (hasSupabase) {
+      try {
+        const { error } = await supabase.from('brands').insert({
+          id: newBrand.id,
+          name: newBrand.name,
+          slug: newBrand.slug,
+          logo_url: newBrand.logoUrl || null
+        });
+        if (error) throw error;
+      } catch (err) {
+        console.error("Failed to add brand to Supabase:", err);
+      }
+    }
+  };
+
+  const updateBrand = async (updatedBrand: Brand) => {
+    setBrands((prev) => prev.map((b) => b.id === updatedBrand.id ? updatedBrand : b));
+
+    const hasSupabase = process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    if (hasSupabase) {
+      try {
+        const { error } = await supabase.from('brands').update({
+          name: updatedBrand.name,
+          slug: updatedBrand.slug,
+          logo_url: updatedBrand.logoUrl || null
+        }).eq('id', updatedBrand.id);
+        if (error) throw error;
+      } catch (err) {
+        console.error("Failed to update brand in Supabase:", err);
+      }
+    }
+  };
+
+  const deleteBrand = async (brandId: string) => {
+    setBrands((prev) => prev.filter((b) => b.id !== brandId));
+
+    const hasSupabase = process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    if (hasSupabase) {
+      try {
+        const { error } = await supabase.from('brands').delete().eq('id', brandId);
+        if (error) throw error;
+      } catch (err) {
+        console.error("Failed to delete brand from Supabase:", err);
+      }
+    }
+  };
+
+  // Product Reviews CRUD
+  const addProductReview = async (reviewData: Omit<ProductReview, 'id' | 'date'>) => {
+    const newReview: ProductReview = {
+      ...reviewData,
+      id: `rev-${Date.now()}`,
+      date: new Date().toISOString().split('T')[0]
+    };
+    
+    // Add to productReviews state
+    setProductReviews((prev) => [newReview, ...prev]);
+
+    // Recalculate product rating and update products state
+    const product = products.find(p => p.id === reviewData.productId);
+    if (product) {
+      const currentReviews = productReviews.filter(pr => pr.productId === product.id);
+      const nextReviews = [newReview, ...currentReviews];
+      const totalRatingSum = nextReviews.reduce((sum, r) => sum + r.rating, 0);
+      const averageRating = Number((totalRatingSum / nextReviews.length).toFixed(1));
+
+      const updatedProduct = {
+        ...product,
+        reviews: nextReviews.map(r => ({
+          id: r.id,
+          customerName: r.customerName,
+          rating: r.rating,
+          comment: r.comment,
+          date: r.date
+        })),
+        rating: averageRating
+      };
+
+      // Update locally
+      setProducts((prev) => prev.map(p => p.id === product.id ? updatedProduct : p));
+
+      // Update in Supabase
+      const hasSupabase = process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+      if (hasSupabase) {
+        try {
+          // 1. Insert review
+          await supabase.from('product_reviews').insert({
+            id: newReview.id,
+            product_id: newReview.productId,
+            customer_name: newReview.customerName,
+            rating: newReview.rating,
+            comment: newReview.comment,
+            date: newReview.date
+          });
+
+          // 2. Update product rating
+          await supabase.from('products').update({
+            rating: averageRating
+          }).eq('id', product.id);
+        } catch (err) {
+          console.error("Failed to add product review to Supabase:", err);
+        }
+      }
+    }
+  };
+
+  const deleteProductReview = async (reviewId: string) => {
+    setProductReviews((prev) => prev.filter((r) => r.id !== reviewId));
+
+    const hasSupabase = process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    if (hasSupabase) {
+      try {
+        const { error } = await supabase.from('product_reviews').delete().eq('id', reviewId);
+        if (error) throw error;
+      } catch (err) {
+        console.error("Failed to delete product review from Supabase:", err);
+      }
+    }
+  };
+
   return (
     <AppContext.Provider
       value={{
@@ -1042,6 +1427,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         cart,
         wishlist,
         customerReviews,
+        navbarLinks,
+        brands,
+        productReviews,
         isMounted,
         addToCart,
         removeFromCart,
@@ -1061,6 +1449,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         addCustomerReview,
         updateCustomerReview,
         deleteCustomerReview,
+        addNavbarLink,
+        updateNavbarLink,
+        deleteNavbarLink,
+        addBrand,
+        updateBrand,
+        deleteBrand,
+        addProductReview,
+        deleteProductReview,
         addOrder,
         updateOrderStatus
       }}

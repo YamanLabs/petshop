@@ -8,9 +8,12 @@ import {
   Edit2, 
   MessageSquare, 
   X, 
-  Star 
+  Star,
+  Upload,
+  Image as ImageIcon
 } from 'lucide-react';
 import { CustomerReview } from '../../../types';
+import { optimizeAndUploadImage } from '../../../utils/supabase';
 
 export default function AdminReviewsPage() {
   const { customerReviews, addCustomerReview, updateCustomerReview, deleteCustomerReview } = useApp();
@@ -22,7 +25,30 @@ export default function AdminReviewsPage() {
   const [productName, setProductName] = useState('');
   const [rating, setRating] = useState<number>(5);
   const [text, setText] = useState('');
+  const [imageUrl, setImageUrl] = useState('');
+  const [isUploading, setIsUploading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    setErrorMsg('');
+    try {
+      const url = await optimizeAndUploadImage(file);
+      if (url) {
+        setImageUrl(url);
+      } else {
+        setErrorMsg('Görsel yüklenemedi, lütfen tekrar deneyin.');
+      }
+    } catch (err) {
+      console.error(err);
+      setErrorMsg('Görsel yüklenirken bir hata oluştu.');
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
   const handleOpenAdd = () => {
     setFormMode('add');
@@ -31,6 +57,7 @@ export default function AdminReviewsPage() {
     setProductName('');
     setRating(5);
     setText('');
+    setImageUrl('');
     setErrorMsg('');
   };
 
@@ -41,6 +68,7 @@ export default function AdminReviewsPage() {
     setProductName(review.productName);
     setRating(review.rating);
     setText(review.text);
+    setImageUrl(review.imageUrl || '');
     setErrorMsg('');
   };
 
@@ -51,6 +79,7 @@ export default function AdminReviewsPage() {
     setProductName('');
     setRating(5);
     setText('');
+    setImageUrl('');
     setErrorMsg('');
   };
 
@@ -68,20 +97,20 @@ export default function AdminReviewsPage() {
       return;
     }
 
+    const payload = {
+      userName: userName.trim(),
+      productName: productName.trim(),
+      rating,
+      text: text.trim(),
+      imageUrl: imageUrl.trim() || null
+    };
+
     if (formMode === 'add') {
-      addCustomerReview({
-        userName: userName.trim(),
-        productName: productName.trim(),
-        rating,
-        text: text.trim()
-      });
+      addCustomerReview(payload);
     } else if (formMode === 'edit') {
       updateCustomerReview({
         id: editingId,
-        userName: userName.trim(),
-        productName: productName.trim(),
-        rating,
-        text: text.trim()
+        ...payload
       });
     }
 
@@ -125,7 +154,8 @@ export default function AdminReviewsPage() {
               <table className="min-w-full divide-y divide-zinc-200 text-xs">
                 <thead>
                   <tr className="text-left text-zinc-400 uppercase tracking-widest font-bold border-b border-zinc-200">
-                    <th className="py-3 pr-3">Müşteri</th>
+                    <th className="py-3 pr-3">Görsel</th>
+                    <th className="py-3 px-3">Müşteri</th>
                     <th className="py-3 px-3">Değerlendirilen Ürün</th>
                     <th className="py-3 px-3">Yorum Detayı</th>
                     <th className="py-3 px-3 text-center">Puan</th>
@@ -135,7 +165,20 @@ export default function AdminReviewsPage() {
                 <tbody className="divide-y divide-zinc-150">
                   {customerReviews.map((review) => (
                     <tr key={review.id} className="hover:bg-zinc-50 transition-colors">
-                      <td className="py-4 pr-3 font-bold text-black whitespace-nowrap">{review.userName}</td>
+                      <td className="py-4 pr-3">
+                        {review.imageUrl ? (
+                          <img 
+                            src={review.imageUrl} 
+                            alt="Yorum Görseli" 
+                            className="w-10 h-10 object-cover rounded-md border border-zinc-200 bg-zinc-50"
+                          />
+                        ) : (
+                          <div className="w-10 h-10 rounded-md border border-zinc-200 bg-zinc-50 flex items-center justify-center text-zinc-400">
+                            <ImageIcon className="w-5 h-5" />
+                          </div>
+                        )}
+                      </td>
+                      <td className="py-4 px-3 font-bold text-black whitespace-nowrap">{review.userName}</td>
                       <td className="py-4 px-3 text-zinc-500 font-semibold max-w-[150px] truncate" title={review.productName}>
                         {review.productName}
                       </td>
@@ -201,6 +244,42 @@ export default function AdminReviewsPage() {
               {errorMsg && <p className="text-xs text-red-500 font-semibold">{errorMsg}</p>}
 
               <form onSubmit={handleSubmit} className="space-y-4">
+                {/* Image upload */}
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold text-zinc-450 uppercase block">Yorum Görseli (İsteğe Bağlı)</label>
+                  
+                  {imageUrl && (
+                    <div className="relative w-20 h-20 rounded-md border border-zinc-200 overflow-hidden bg-zinc-50">
+                      <img src={imageUrl} alt="Önizleme" className="w-full h-full object-cover" />
+                      <button
+                        type="button"
+                        onClick={() => setImageUrl('')}
+                        className="absolute top-1 right-1 p-0.5 bg-black/60 text-white hover:bg-black rounded-full cursor-pointer"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </div>
+                  )}
+
+                  <div className="flex items-center justify-center w-full">
+                    <label className="flex flex-col items-center justify-center w-full h-20 border-2 border-zinc-200 border-dashed rounded-lg cursor-pointer bg-zinc-50 hover:bg-zinc-100/50 hover:border-black transition-all">
+                      <div className="flex flex-col items-center justify-center pt-3 pb-3">
+                        <Upload className="w-5 h-5 text-zinc-450 mb-1" />
+                        <p className="text-[9px] text-zinc-450 font-bold uppercase">
+                          {isUploading ? 'Yükleniyor...' : 'Görsel Yükle (WebP)'}
+                        </p>
+                      </div>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageUpload}
+                        disabled={isUploading}
+                        className="hidden"
+                      />
+                    </label>
+                  </div>
+                </div>
+
                 <div className="space-y-1">
                   <label className="text-[10px] font-bold text-zinc-450 uppercase block">Müşteri Adı</label>
                   <input

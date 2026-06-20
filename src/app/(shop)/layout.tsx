@@ -37,7 +37,8 @@ function ShopLayoutContent({ children }: { children: React.ReactNode }) {
     addToCart, 
     removeFromWishlist,
     coupons,
-    isMounted
+    isMounted,
+    navbarLinks
   } = useApp();
 
   const router = useRouter();
@@ -147,9 +148,9 @@ function ShopLayoutContent({ children }: { children: React.ReactNode }) {
     }, 1200);
   };
 
-  // Build root/nested categories list for dynamic navbar
-  const rootCategories = categories.filter(c => !c.parentId);
-  const getSubcategories = (parentId: string) => categories.filter(c => c.parentId === parentId);
+  // Build root/nested navbar links
+  const rootNavLinks = navbarLinks.filter(n => !n.parentId);
+  const getSubLinks = (parentId: string) => navbarLinks.filter(n => n.parentId === parentId);
 
   if (!isMounted) {
     return (
@@ -181,30 +182,27 @@ function ShopLayoutContent({ children }: { children: React.ReactNode }) {
 
             {/* Desktop Navbar Category Links */}
             <nav className="hidden lg:flex items-center space-x-6">
-              <Link href="/shop" className="text-sm font-semibold text-zinc-700 hover:text-black transition-colors duration-200 cursor-pointer">
-                Tüm Ürünler
-              </Link>
-              {rootCategories.map(rootCat => {
-                const subs = getSubcategories(rootCat.id);
+              {rootNavLinks.map(link => {
+                const subs = getSubLinks(link.id);
                 return (
-                  <div key={rootCat.id} className="relative group py-2">
+                  <div key={link.id} className="relative group py-2">
                     <Link 
-                      href={`/shop?category=${rootCat.id}`}
+                      href={link.url}
                       className="flex items-center gap-1 text-sm font-semibold text-zinc-700 hover:text-black transition-colors duration-200 cursor-pointer"
                     >
-                      {rootCat.name}
+                      {link.title}
                       {subs.length > 0 && <ChevronDown className="w-4 h-4 text-zinc-400 group-hover:text-black transition-colors" />}
                     </Link>
                     {/* Hover Dropdown */}
                     {subs.length > 0 && (
                       <div className="absolute left-0 top-full mt-1 w-48 bg-white border border-zinc-200 rounded-md shadow-lg py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                        {subs.map(subCat => (
+                        {subs.map(subLink => (
                           <Link
-                            key={subCat.id}
-                            href={`/shop?category=${subCat.id}`}
+                            key={subLink.id}
+                            href={subLink.url}
                             className="block px-4 py-2 text-sm text-zinc-700 hover:bg-zinc-50 hover:text-black transition-colors cursor-pointer"
                           >
-                            {subCat.name}
+                            {subLink.title}
                           </Link>
                         ))}
                       </div>
@@ -286,34 +284,27 @@ function ShopLayoutContent({ children }: { children: React.ReactNode }) {
               </button>
             </form>
             <nav className="flex flex-col space-y-2">
-              <Link 
-                href="/shop" 
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="text-sm font-semibold py-2 px-3 hover:bg-zinc-50 rounded-md block cursor-pointer"
-              >
-                Tüm Ürünler
-              </Link>
-              {rootCategories.map(rootCat => {
-                const subs = getSubcategories(rootCat.id);
+              {rootNavLinks.map(link => {
+                const subs = getSubLinks(link.id);
                 return (
-                  <div key={rootCat.id} className="space-y-1">
+                  <div key={link.id} className="space-y-1">
                     <Link
-                      href={`/shop?category=${rootCat.id}`}
+                      href={link.url}
                       onClick={() => setIsMobileMenuOpen(false)}
-                      className="text-sm font-semibold py-2 px-3 bg-zinc-50/50 hover:bg-zinc-50 rounded-md flex items-center justify-between cursor-pointer"
+                      className="text-sm font-semibold py-2 px-3 bg-zinc-50/50 hover:bg-zinc-50 rounded-md flex items-center justify-between cursor-pointer animate-fadeIn"
                     >
-                      {rootCat.name}
+                      {link.title}
                     </Link>
                     {subs.length > 0 && (
                       <div className="pl-6 flex flex-col space-y-1">
-                        {subs.map(subCat => (
+                        {subs.map(subLink => (
                           <Link
-                            key={subCat.id}
-                            href={`/shop?category=${subCat.id}`}
+                            key={subLink.id}
+                            href={subLink.url}
                             onClick={() => setIsMobileMenuOpen(false)}
                             className="text-xs font-medium py-1.5 px-3 text-zinc-600 hover:text-black block cursor-pointer"
                           >
-                            {subCat.name}
+                            {subLink.title}
                           </Link>
                         ))}
                       </div>

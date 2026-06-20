@@ -74,4 +74,29 @@ export interface CustomerReview {
   rating: number;
   userName: string;
   productName: string;
+  imageUrl?: string | null;
+}
+
+export interface NavbarLink {
+  id: string;
+  title: string;
+  url: string;
+  parentId: string | null;
+  sortOrder: number;
+}
+
+export interface Brand {
+  id: string;
+  name: string;
+  slug: string;
+  logoUrl?: string | null;
+}
+
+export interface ProductReview {
+  id: string;
+  productId: string;
+  customerName: string;
+  rating: number;
+  comment: string;
+  date: string;
 }

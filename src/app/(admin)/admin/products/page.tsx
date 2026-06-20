@@ -12,17 +12,39 @@ import {
   Globe, 
   SlidersHorizontal,
   ChevronDown,
-  PawPrint
+  PawPrint,
+  Upload
 } from 'lucide-react';
 import { Category, Product, ProductVariation } from '../../../types';
+import { optimizeAndUploadImage } from '../../../utils/supabase';
 
 function AdminProductsContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { products, categories, addProduct, updateProduct, deleteProduct } = useApp();
+  const { products, categories, brands, addProduct, updateProduct, deleteProduct } = useApp();
 
   // Search state in products table
   const [tableSearch, setTableSearch] = useState('');
+
+  // Image Upload State
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+
+  const handleProductImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploadingImage(true);
+    try {
+      const url = await optimizeAndUploadImage(file);
+      if (url) {
+        setImage(url);
+      }
+    } catch (err) {
+      console.error("Failed to upload product image:", err);
+    } finally {
+      setIsUploadingImage(false);
+    }
+  };
 
   // Form states
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -216,14 +238,19 @@ function AdminProductsContent() {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1">
                     <label className="text-xs font-bold text-zinc-500">Marka</label>
-                    <input
-                      type="text"
+                    <select
                       required
-                      placeholder="Örn: N&D"
                       value={brand}
                       onChange={(e) => setBrand(e.target.value)}
-                      className="w-full bg-zinc-50 border border-zinc-200 rounded-md p-2.5 text-xs focus:outline-hidden focus:border-black"
-                    />
+                      className="w-full bg-zinc-50 border border-zinc-200 rounded-md p-2.5 text-xs focus:outline-hidden focus:border-black cursor-pointer font-semibold"
+                    >
+                      <option value="">-- Marka Seçin --</option>
+                      {brands.map((b) => (
+                        <option key={b.id} value={b.name}>
+                          {b.name}
+                        </option>
+                      ))}
+                    </select>
                   </div>
 
                   <div className="space-y-1">
@@ -285,16 +312,53 @@ function AdminProductsContent() {
                   </div>
                 </div>
 
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-zinc-500">Görsel Adresi (Unsplash URL)</label>
-                  <input
-                    type="url"
-                    required
-                    placeholder="https://images.unsplash.com/..."
-                    value={image}
-                    onChange={(e) => setImage(e.target.value)}
-                    className="w-full bg-zinc-50 border border-zinc-200 rounded-md p-2.5 text-xs focus:outline-hidden focus:border-black font-mono"
-                  />
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-zinc-500">Ürün Görseli</label>
+                  
+                  {image && (
+                    <div className="relative w-24 h-24 rounded-md border border-zinc-200 overflow-hidden bg-zinc-50 p-1">
+                      <img src={image} alt="Ürün Önizleme" className="w-full h-full object-contain" />
+                      <button
+                        type="button"
+                        onClick={() => setImage('')}
+                        className="absolute top-1 right-1 p-0.5 bg-black/60 text-white hover:bg-black rounded-full cursor-pointer"
+                        title="Görseli Kaldır"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </div>
+                  )}
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="flex items-center justify-center w-full">
+                      <label className="flex flex-col items-center justify-center w-full h-24 border-2 border-zinc-200 border-dashed rounded-lg cursor-pointer bg-zinc-50 hover:bg-zinc-100/50 hover:border-black transition-all">
+                        <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                          <Upload className="w-5 h-5 text-zinc-450 mb-1" />
+                          <p className="text-[10px] text-zinc-450 font-bold uppercase">
+                            {isUploadingImage ? 'Yükleniyor...' : 'Görsel Yükle (WebP)'}
+                          </p>
+                        </div>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleProductImageUpload}
+                          disabled={isUploadingImage}
+                          className="hidden"
+                        />
+                      </label>
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-[9px] font-bold text-zinc-400 uppercase">Veya Görsel URL'si</label>
+                      <input
+                        type="url"
+                        placeholder="https://images.unsplash.com/..."
+                        value={image}
+                        onChange={(e) => setImage(e.target.value)}
+                        className="w-full bg-zinc-50 border border-zinc-200 rounded-md p-2.5 text-xs focus:outline-hidden focus:border-black font-mono"
+                      />
+                    </div>
+                  </div>
                 </div>
 
                 <div className="space-y-1">
@@ -465,10 +529,18 @@ function AdminProductsContent() {
                   return (
                     <tr key={p.id} className="hover:bg-zinc-50 transition-colors">
                       <td className="py-3 pr-3">
-                        <div className="w-10 h-10 bg-zinc-900 rounded-md border border-zinc-200 flex flex-col items-center justify-center flex-shrink-0 gap-0.5 select-none">
-                          <PawPrint className="w-3.5 h-3.5 text-white/50" />
-                          <span className="text-[4px] font-bold text-white/50 tracking-wider font-mono">YOK</span>
-                        </div>
+                        {p.image ? (
+                          <img 
+                            src={p.image} 
+                            alt={p.title} 
+                            className="w-10 h-10 object-contain rounded-md border border-zinc-200 bg-zinc-50"
+                          />
+                        ) : (
+                          <div className="w-10 h-10 bg-zinc-900 rounded-md border border-zinc-200 flex flex-col items-center justify-center flex-shrink-0 gap-0.5 select-none">
+                            <PawPrint className="w-3.5 h-3.5 text-white/50" />
+                            <span className="text-[4px] font-bold text-white/50 tracking-wider font-mono">YOK</span>
+                          </div>
+                        )}
                       </td>
                       <td className="py-3 px-3">
                         <div className="font-semibold text-zinc-950 line-clamp-1">{p.title}</div>

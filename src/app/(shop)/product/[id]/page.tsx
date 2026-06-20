@@ -21,7 +21,7 @@ import { Review } from '../../../types';
 export default function ProductDetailPage() {
   const params = useParams();
   const router = useRouter();
-  const { products, addToCart, addToWishlist, wishlist, updateProduct } = useApp();
+  const { products, addToCart, addToWishlist, wishlist, addProductReview } = useApp();
 
   const productId = params.id as string;
   const product = products.find(p => p.id === productId);
@@ -64,24 +64,11 @@ export default function ProductDetailPage() {
     e.preventDefault();
     if (!newReviewName.trim() || !newReviewComment.trim()) return;
 
-    const newRev: Review = {
-      id: `rev-${Date.now()}`,
+    addProductReview({
+      productId: product.id,
       customerName: newReviewName.trim(),
       rating: newReviewRating,
-      comment: newReviewComment.trim(),
-      date: new Date().toISOString().split('T')[0]
-    };
-
-    const nextReviews = [newRev, ...product.reviews];
-    
-    // Recalculate average rating
-    const totalRatingSum = nextReviews.reduce((sum, r) => sum + r.rating, 0);
-    const averageRating = Number((totalRatingSum / nextReviews.length).toFixed(1));
-
-    updateProduct({
-      ...product,
-      reviews: nextReviews,
-      rating: averageRating
+      comment: newReviewComment.trim()
     });
 
     setNewReviewName('');
@@ -107,11 +94,19 @@ export default function ProductDetailPage() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
         {/* Left: Product Image */}
         <div className="lg:col-span-6 space-y-4">
-          <div className="aspect-square bg-zinc-50 border border-zinc-200 rounded-xl overflow-hidden relative">
-            <div className="w-full h-full bg-zinc-900 flex flex-col items-center justify-center gap-2 p-8 text-center min-h-[300px] sm:min-h-[400px]">
-              <PawPrint className="w-12 h-12 text-white/50" />
-              <span className="text-xs font-bold text-white/60 tracking-wider">GÖRSEL YOK</span>
-            </div>
+          <div className="aspect-square bg-zinc-50 border border-zinc-200 rounded-xl overflow-hidden relative flex items-center justify-center">
+            {product.image ? (
+              <img 
+                src={product.image} 
+                alt={product.title} 
+                className="w-full h-full object-contain p-4"
+              />
+            ) : (
+              <div className="w-full h-full bg-zinc-900 flex flex-col items-center justify-center gap-2 p-8 text-center min-h-[300px] sm:min-h-[400px]">
+                <PawPrint className="w-12 h-12 text-white/50" />
+                <span className="text-xs font-bold text-white/60 tracking-wider">GÖRSEL YOK</span>
+              </div>
+            )}
             {product.originalPrice && (
               <span className="absolute bottom-4 left-4 bg-red-600 text-white text-xs font-bold px-3 py-1 rounded-sm uppercase tracking-wider">
                 Kampanyalı
