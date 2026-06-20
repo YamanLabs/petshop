@@ -5,6 +5,8 @@ export async function POST(request: Request) {
   try {
     const { password } = await request.json();
     let correctPassword = process.env.ADMIN_LOGIN_PASSWORD;
+    let dbErrorDetail: string | null = null;
+    let dbSuccess = false;
 
     // Attempt to query password from database
     try {
@@ -14,15 +16,34 @@ export async function POST(request: Request) {
         .eq('key', 'admin_login_password')
         .single();
       
-      if (!error && data?.value) {
+      if (error) {
+        dbErrorDetail = error.message;
+      } else if (data?.value) {
         correctPassword = data.value;
+        dbSuccess = true;
+      } else {
+        dbErrorDetail = 'admin_login_password anahtarı için değer bulunamadı.';
       }
-    } catch (dbErr) {
-      console.warn('Failed to fetch admin_login_password from Supabase, using local fallback:', dbErr);
+    } catch (dbErr: any) {
+      dbErrorDetail = dbErr?.message || String(dbErr);
     }
 
     if (!correctPassword) {
-      return NextResponse.json({ error: 'Server configuration error.' }, { status: 500 });
+      console.error('Doğrulama hatası detayları:', {
+        dbError: dbErrorDetail,
+        dbSuccess,
+        envVarExists: !!process.env.ADMIN_LOGIN_PASSWORD,
+      });
+
+      return NextResponse.json({ 
+        error: 'Server configuration error.',
+        details: {
+          dbError: dbErrorDetail,
+          dbSuccess,
+          envVarExists: !!process.env.ADMIN_LOGIN_PASSWORD,
+          tip: 'Eğer .env.local dosyasına yeni şifreler eklediyseniz, değişikliklerin geçerli olması için yerel geliştirme sunucusunu (npm run dev) yeniden başlatmanız gerekebilir.'
+        }
+      }, { status: 500 });
     }
 
     if (password === correctPassword) {
@@ -43,4 +64,5 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Geçersiz istek.' }, { status: 400 });
   }
 }
+
 

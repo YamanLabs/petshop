@@ -31,15 +31,30 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     setIsMobileOpen(false);
   }, [pathname]);
 
-  const menuItems = [
-    { name: 'Genel Bakış', path: '/admin', icon: BarChart3 },
-    { name: 'Sipariş Yönetimi', path: '/admin/orders', icon: ClipboardList },
-    { name: 'Ürün Yönetimi', path: '/admin/products', icon: Box },
-    { name: 'Kategoriler (Tree)', path: '/admin/categories', icon: FolderTree },
-    { name: 'Kupon Yönetimi', path: '/admin/coupons', icon: Tag },
-    { name: 'Marka Yönetimi', path: '/admin/brands', icon: Shield },
-    { name: 'Navbar Özelleştirme', path: '/admin/navbar', icon: Settings },
-    { name: 'Sizden Gelenler', path: '/admin/reviews', icon: MessageSquare },
+  const menuSections = [
+    {
+      title: 'Analiz & Satış',
+      items: [
+        { name: 'Genel Bakış', path: '/admin', icon: BarChart3 },
+        { name: 'Sipariş Yönetimi', path: '/admin/orders', icon: ClipboardList },
+      ]
+    },
+    {
+      title: 'Mağaza Yönetimi',
+      items: [
+        { name: 'Ürün Yönetimi', path: '/admin/products', icon: Box },
+        { name: 'Kategori Ağacı', path: '/admin/categories', icon: FolderTree },
+        { name: 'Marka Yönetimi', path: '/admin/brands', icon: Shield },
+        { name: 'Kupon Yönetimi', path: '/admin/coupons', icon: Tag },
+      ]
+    },
+    {
+      title: 'İçerik & Yorumlar',
+      items: [
+        { name: 'Navbar Özelleştirme', path: '/admin/navbar', icon: Settings },
+        { name: 'Sizden Gelenler', path: '/admin/reviews', icon: MessageSquare },
+      ]
+    }
   ];
 
   if (!isMounted) return null;
@@ -69,9 +84,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         fixed inset-y-0 left-0 z-40 w-64 bg-black text-white flex flex-col justify-between border-r border-zinc-900 transform transition-transform duration-250 md:translate-x-0 md:static md:h-screen
         ${isMobileOpen ? 'translate-x-0' : '-translate-x-full'}
       `}>
-        <div className="flex flex-col">
+        <div className="flex flex-col flex-1 min-h-0">
           {/* Logo Brand Header */}
-          <div className="h-20 px-6 border-b border-zinc-900 flex items-center justify-between">
+          <div className="h-20 px-6 border-b border-zinc-900 flex items-center justify-between flex-shrink-0">
             <Link href="/admin" className="flex flex-col items-start gap-1 group">
               <Logo className="h-9 w-auto" light />
               <span className="font-heading font-bold text-[9px] tracking-widest text-white/50 uppercase select-none pl-1">Yönetim Paneli</span>
@@ -84,26 +99,35 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </button>
           </div>
 
-          {/* Menu Items */}
-          <nav className="p-4 space-y-1.5 flex-1">
-            {menuItems.map((item) => {
-              const Icon = item.icon;
-              const isActive = pathname === item.path;
-              return (
-                <Link
-                  key={item.path}
-                  href={item.path}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-md text-xs font-bold transition-all cursor-pointer ${
-                    isActive 
-                      ? 'bg-white text-black' 
-                      : 'text-zinc-400 hover:text-white hover:bg-zinc-900'
-                  }`}
-                >
-                  <Icon className="w-4.5 h-4.5" />
-                  <span>{item.name}</span>
-                </Link>
-              );
-            })}
+          {/* Menu Sections */}
+          <nav className="p-4 space-y-6 flex-1 overflow-y-auto">
+            {menuSections.map((section, sIdx) => (
+              <div key={sIdx} className="space-y-2">
+                <h4 className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest px-3 mb-1 select-none">
+                  {section.title}
+                </h4>
+                <div className="space-y-1">
+                  {section.items.map((item) => {
+                    const Icon = item.icon;
+                    const isActive = pathname === item.path;
+                    return (
+                      <Link
+                        key={item.path}
+                        href={item.path}
+                        className={`flex items-center gap-3 px-3.5 py-2.5 rounded-md text-xs font-bold transition-all cursor-pointer ${
+                          isActive 
+                            ? 'bg-white text-black' 
+                            : 'text-zinc-400 hover:text-white hover:bg-zinc-900'
+                        }`}
+                      >
+                        <Icon className="w-4 h-4" />
+                        <span>{item.name}</span>
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
           </nav>
         </div>
 
