@@ -12,9 +12,14 @@ import {
   X,
   Search,
   CheckCircle,
-  PawPrint
+  PawPrint,
+  Cat,
+  Dog,
+  Bird,
+  Fish,
+  Rabbit
 } from 'lucide-react';
-import { Product } from '../../types';
+import { Product, Category } from '../../types';
 
 function ShopCatalogContent() {
   const router = useRouter();
@@ -31,6 +36,38 @@ function ShopCatalogContent() {
 
   // Mobile filters sheet open state
   const [showMobileFilters, setShowMobileFilters] = useState<boolean>(false);
+
+  // Helper to render category icon (preset SVG or custom uploaded image)
+  const renderCategoryIcon = (cat: Category, isActive: boolean) => {
+    if (cat.iconType === 'image' && cat.iconImageUrl) {
+      return (
+        <img 
+          src={cat.iconImageUrl} 
+          alt="" 
+          className="w-4 h-4 rounded-full object-cover border border-zinc-200 flex-shrink-0" 
+        />
+      );
+    }
+    
+    const preset = cat.iconSvgPreset || 'none';
+    let IconComponent = PawPrint;
+    
+    if (preset === 'cat') IconComponent = Cat;
+    else if (preset === 'dog') IconComponent = Dog;
+    else if (preset === 'bird') IconComponent = Bird;
+    else if (preset === 'fish') IconComponent = Fish;
+    else if (preset === 'rabbit') IconComponent = Rabbit;
+    
+    // Determine the icon color based on active state:
+    // White when the category is active and has black bg
+    // Black when subcategory is active and has zinc-200 bg
+    // Default to zinc-450
+    const iconColor = isActive 
+      ? (selectedCategory === cat.id && !cat.parentId ? 'text-white' : 'text-black')
+      : 'text-zinc-500';
+
+    return <IconComponent className={`w-3.5 h-3.5 flex-shrink-0 ${iconColor}`} />;
+  };
 
   // Sync state with URL params
   useEffect(() => {
@@ -217,43 +254,50 @@ function ShopCatalogContent() {
               <div className="space-y-1">
                 <button
                   onClick={() => handleCategorySelect('')}
-                  className={`w-full text-left px-2 py-1 text-xs font-semibold rounded-sm transition-colors cursor-pointer block ${
+                  className={`w-full text-left px-2 py-1 text-xs font-semibold rounded-sm transition-colors cursor-pointer flex items-center gap-2 ${
                     selectedCategory === '' 
                       ? 'bg-black text-white' 
                       : 'text-zinc-650 hover:bg-zinc-100'
                   }`}
                 >
-                  Tüm Kategoriler
+                  <PawPrint className={`w-3.5 h-3.5 flex-shrink-0 ${selectedCategory === '' ? 'text-white' : 'text-zinc-450'}`} />
+                  <span>Tüm Kategoriler</span>
                 </button>
                 {categories.filter(c => !c.parentId).map(rootCat => {
                   const subCats = categories.filter(c => c.parentId === rootCat.id);
+                  const isRootActive = selectedCategory === rootCat.id;
                   return (
                     <div key={rootCat.id} className="space-y-0.5">
                       <button
                         onClick={() => handleCategorySelect(rootCat.id)}
-                        className={`w-full text-left px-2 py-1.5 text-xs font-bold rounded-sm transition-colors cursor-pointer flex items-center justify-between ${
-                          selectedCategory === rootCat.id 
+                        className={`w-full text-left px-2 py-1.5 text-xs font-bold rounded-sm transition-colors cursor-pointer flex items-center gap-2 ${
+                          isRootActive 
                             ? 'bg-black text-white' 
                             : 'text-zinc-750 hover:bg-zinc-100'
                         }`}
                       >
+                        {renderCategoryIcon(rootCat, isRootActive)}
                         <span>{rootCat.name}</span>
                       </button>
                       {subCats.length > 0 && (
                         <div className="pl-3 space-y-0.5 border-l border-zinc-200 ml-2">
-                          {subCats.map(subCat => (
-                            <button
-                              key={subCat.id}
-                              onClick={() => handleCategorySelect(subCat.id)}
-                              className={`w-full text-left px-2 py-1 text-[11px] font-semibold rounded-sm transition-colors cursor-pointer block ${
-                                selectedCategory === subCat.id 
-                                  ? 'bg-zinc-200 text-black font-bold' 
-                                  : 'text-zinc-500 hover:bg-zinc-100 hover:text-black'
-                              }`}
-                            >
-                              • {subCat.name}
-                            </button>
-                          ))}
+                          {subCats.map(subCat => {
+                            const isSubActive = selectedCategory === subCat.id;
+                            return (
+                              <button
+                                key={subCat.id}
+                                onClick={() => handleCategorySelect(subCat.id)}
+                                className={`w-full text-left px-2 py-1 text-[11px] font-semibold rounded-sm transition-colors cursor-pointer flex items-center gap-1.5 ${
+                                  isSubActive 
+                                    ? 'bg-zinc-200 text-black font-bold' 
+                                    : 'text-zinc-500 hover:bg-zinc-100 hover:text-black'
+                                }`}
+                              >
+                                {renderCategoryIcon(subCat, isSubActive)}
+                                <span>{subCat.name}</span>
+                              </button>
+                            );
+                          })}
                         </div>
                       )}
                     </div>
@@ -472,37 +516,44 @@ function ShopCatalogContent() {
                 <div className="space-y-1">
                   <button
                     onClick={() => { handleCategorySelect(''); setShowMobileFilters(false); }}
-                    className={`w-full text-left px-2 py-1 text-xs font-semibold rounded-sm block ${
+                    className={`w-full text-left px-2 py-1 text-xs font-semibold rounded-sm flex items-center gap-2 ${
                       selectedCategory === '' ? 'bg-black text-white' : 'text-zinc-650'
                     }`}
                   >
-                    Tüm Kategoriler
+                    <PawPrint className={`w-3.5 h-3.5 flex-shrink-0 ${selectedCategory === '' ? 'text-white' : 'text-zinc-450'}`} />
+                    <span>Tüm Kategoriler</span>
                   </button>
                   {categories.filter(c => !c.parentId).map(rootCat => {
                     const subCats = categories.filter(c => c.parentId === rootCat.id);
+                    const isRootActive = selectedCategory === rootCat.id;
                     return (
                       <div key={rootCat.id} className="space-y-0.5">
                         <button
                           onClick={() => { handleCategorySelect(rootCat.id); setShowMobileFilters(false); }}
-                          className={`w-full text-left px-2 py-1 text-xs font-bold rounded-sm block ${
-                            selectedCategory === rootCat.id ? 'bg-black text-white' : 'text-zinc-700'
+                          className={`w-full text-left px-2 py-1 text-xs font-bold rounded-sm flex items-center gap-2 ${
+                            isRootActive ? 'bg-black text-white' : 'text-zinc-700'
                           }`}
                         >
-                          {rootCat.name}
+                          {renderCategoryIcon(rootCat, isRootActive)}
+                          <span>{rootCat.name}</span>
                         </button>
                         {subCats.length > 0 && (
                           <div className="pl-3 space-y-0.5 border-l border-zinc-200 ml-2">
-                            {subCats.map(subCat => (
-                              <button
-                                key={subCat.id}
-                                onClick={() => { handleCategorySelect(subCat.id); setShowMobileFilters(false); }}
-                                className={`w-full text-left px-2 py-1 text-[11px] font-semibold rounded-sm block ${
-                                  selectedCategory === subCat.id ? 'bg-zinc-200 text-black font-bold' : 'text-zinc-500'
-                                }`}
-                              >
-                                • {subCat.name}
-                              </button>
-                            ))}
+                            {subCats.map(subCat => {
+                              const isSubActive = selectedCategory === subCat.id;
+                              return (
+                                <button
+                                  key={subCat.id}
+                                  onClick={() => { handleCategorySelect(subCat.id); setShowMobileFilters(false); }}
+                                  className={`w-full text-left px-2 py-1 text-[11px] font-semibold rounded-sm flex items-center gap-1.5 ${
+                                    isSubActive ? 'bg-zinc-200 text-black font-bold' : 'text-zinc-500'
+                                  }`}
+                                >
+                                  {renderCategoryIcon(subCat, isSubActive)}
+                                  <span>{subCat.name}</span>
+                                </button>
+                              );
+                            })}
                           </div>
                         )}
                       </div>
