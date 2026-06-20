@@ -288,13 +288,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
       setCategories(localCategories ? JSON.parse(localCategories) : initialCategories);
       setOrders(localOrders ? JSON.parse(localOrders) : initialOrders);
-      setCoupons(localCoupons ? JSON.parse(localCoupons) : initialCoupons);
       setCart(localCart ? JSON.parse(localCart) : []);
       setWishlist(localWishlist ? JSON.parse(localWishlist) : []);
 
+      const hasSupabase = process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
       // Load products from Supabase
       let loadedProducts: Product[] = [];
-      const hasSupabase = process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
       if (hasSupabase) {
         try {
           const { data, error } = await supabase.from('products').select('*');
@@ -350,7 +350,43 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         loadedProducts = localProducts ? JSON.parse(localProducts) : initialProducts;
       }
 
+      // Load coupons from Supabase
+      let loadedCoupons: Coupon[] = [];
+      if (hasSupabase) {
+        try {
+          const { data, error } = await supabase.from('coupons').select('*');
+          if (error) throw error;
+          if (data && data.length > 0) {
+            loadedCoupons = data.map((dbCoupon: any) => ({
+              code: dbCoupon.code,
+              type: dbCoupon.type as 'percentage' | 'fixed',
+              value: Number(dbCoupon.value),
+              active: Boolean(dbCoupon.active),
+              usageCount: Number(dbCoupon.usage_count ?? 0)
+            }));
+          } else {
+            console.log("Supabase coupons table is empty. Seeding initial coupons...");
+            const dbSeed = initialCoupons.map(c => ({
+              code: c.code,
+              type: c.type,
+              value: c.value,
+              active: c.active,
+              usage_count: c.usageCount
+            }));
+            const { error: seedError } = await supabase.from('coupons').insert(dbSeed);
+            if (seedError) console.error("Failed to seed Supabase coupons:", seedError);
+            loadedCoupons = initialCoupons;
+          }
+        } catch (err) {
+          console.error("Failed to load coupons from Supabase, falling back to LocalStorage:", err);
+          loadedCoupons = localCoupons ? JSON.parse(localCoupons) : initialCoupons;
+        }
+      } else {
+        loadedCoupons = localCoupons ? JSON.parse(localCoupons) : initialCoupons;
+      }
+
       setProducts(loadedProducts);
+      setCoupons(loadedCoupons);
       setIsMounted(true);
     }
 
@@ -555,21 +591,65 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   // Admin CRUD for Coupons
-  const addCoupon = (coupon: Coupon) => {
+  const addCoupon = async (coupon: Coupon) => {
+    const uppercaseCode = coupon.code.toUpperCase().trim();
     setCoupons((prev) => {
-      if (prev.some((c) => c.code.toUpperCase() === coupon.code.toUpperCase())) return prev;
-      return [...prev, { ...coupon, code: coupon.code.toUpperCase() }];
+      if (prev.some((c) => c.code.toUpperCase() === uppercaseCode)) return prev;
+      return [...prev, { ...coupon, code: uppercaseCode }];
     });
+
+    const hasSupabase = process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    if (hasSupabase) {
+      try {
+        const { error } = await supabase.from('coupons').insert({
+          code: uppercaseCode,
+          type: coupon.type,
+          value: coupon.value,
+          active: coupon.active,
+          usage_count: coupon.usageCount || 0
+        });
+        if (error) throw error;
+      } catch (err) {
+        console.error("Failed to add coupon to Supabase:", err);
+      }
+    }
   };
 
-  const updateCoupon = (updatedCoupon: Coupon) => {
+  const updateCoupon = async (updatedCoupon: Coupon) => {
+    const uppercaseCode = updatedCoupon.code.toUpperCase().trim();
     setCoupons((prev) =>
-      prev.map((c) => (c.code.toUpperCase() === updatedCoupon.code.toUpperCase() ? updatedCoupon : c))
+      prev.map((c) => (c.code.toUpperCase() === uppercaseCode ? { ...updatedCoupon, code: uppercaseCode } : c))
     );
+
+    const hasSupabase = process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    if (hasSupabase) {
+      try {
+        const { error } = await supabase.from('coupons').update({
+          type: updatedCoupon.type,
+          value: updatedCoupon.value,
+          active: updatedCoupon.active,
+          usage_count: updatedCoupon.usageCount
+        }).eq('code', uppercaseCode);
+        if (error) throw error;
+      } catch (err) {
+        console.error("Failed to update coupon in Supabase:", err);
+      }
+    }
   };
 
-  const deleteCoupon = (code: string) => {
-    setCoupons((prev) => prev.filter((c) => c.code.toUpperCase() !== code.toUpperCase()));
+  const deleteCoupon = async (code: string) => {
+    const uppercaseCode = code.toUpperCase().trim();
+    setCoupons((prev) => prev.filter((c) => c.code.toUpperCase() !== uppercaseCode));
+
+    const hasSupabase = process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    if (hasSupabase) {
+      try {
+        const { error } = await supabase.from('coupons').delete().eq('code', uppercaseCode);
+        if (error) throw error;
+      } catch (err) {
+        console.error("Failed to delete coupon from Supabase:", err);
+      }
+    }
   };
 
   // Order Flow
@@ -613,6 +693,35 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         return p;
       })
     );
+
+    // Increment coupon usage count if a coupon was applied
+    if (typeof window !== 'undefined') {
+      const couponStr = sessionStorage.getItem('applied_coupon');
+      if (couponStr) {
+        try {
+          const applied = JSON.parse(couponStr);
+          if (applied && applied.code) {
+            const codeUpper = applied.code.toUpperCase().trim();
+            setCoupons((prevCoupons) =>
+              prevCoupons.map((c) => {
+                if (c.code.toUpperCase() === codeUpper) {
+                  const newCount = (c.usageCount || 0) + 1;
+                  if (hasSupabase) {
+                    supabase.from('coupons').update({ usage_count: newCount }).eq('code', codeUpper).then(({ error }) => {
+                      if (error) console.error("Failed to update coupon usage count in Supabase:", error);
+                    });
+                  }
+                  return { ...c, usageCount: newCount };
+                }
+                return c;
+              })
+            );
+          }
+        } catch (e) {
+          console.error("Failed to parse applied coupon from session storage:", e);
+        }
+      }
+    }
 
     return trackingCode;
   };
