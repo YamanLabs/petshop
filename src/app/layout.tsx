@@ -31,8 +31,9 @@ export default function RootLayout({
     <html
       lang="tr"
       className={`${playfair.variable} ${nunito.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col font-body bg-zinc-50 text-zinc-950 font-sans" style={{ fontFamily: "var(--font-nunito), sans-serif" }}>
+      <body suppressHydrationWarning className="min-h-full flex flex-col font-body bg-zinc-50 text-zinc-950 font-sans" style={{ fontFamily: "var(--font-nunito), sans-serif" }}>
         <AppProvider>
           <CustomCursor />
           {children}
