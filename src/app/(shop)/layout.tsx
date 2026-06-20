@@ -21,7 +21,9 @@ import {
   Ticket,
   Package,
   Settings,
-  Truck
+  Truck,
+  Home,
+  ChevronRight
 } from 'lucide-react';
 import { Category, Product } from '../types';
 import { playSound } from '../utils/sound';
@@ -29,6 +31,7 @@ import Logo from '../components/Logo';
 
 function ShopLayoutContent({ children }: { children: React.ReactNode }) {
   const { 
+    products,
     cart, 
     wishlist, 
     categories, 
@@ -50,6 +53,7 @@ function ShopLayoutContent({ children }: { children: React.ReactNode }) {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isWishlistOpen, setIsWishlistOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
   
   // WhatsApp Widget States
   const [isChatOpen, setIsChatOpen] = useState(false);
@@ -228,7 +232,7 @@ function ShopLayoutContent({ children }: { children: React.ReactNode }) {
             </form>
 
             {/* Cart, Wishlist, Mobile menu toggles */}
-            <div className="flex items-center gap-1.5 sm:gap-3">
+            <div className="hidden lg:flex items-center gap-1.5 sm:gap-3">
               {/* Wishlist */}
               <button 
                 onClick={() => { playSound.playClick(); setIsWishlistOpen(true); }}
@@ -319,7 +323,7 @@ function ShopLayoutContent({ children }: { children: React.ReactNode }) {
       </header>
 
       {/* Main Content Area */}
-      <main className="flex-grow">
+      <main className="flex-grow pb-20 lg:pb-0">
         {children}
       </main>
 
@@ -419,8 +423,12 @@ function ShopLayoutContent({ children }: { children: React.ReactNode }) {
             className="absolute inset-0 bg-black/40 backdrop-blur-xs transition-opacity" 
             onClick={() => setIsCartOpen(false)}
           />
-          <div className="absolute inset-y-0 right-0 max-w-full flex">
-            <div className="w-screen max-w-md bg-white shadow-2xl flex flex-col animate-slideLeft">
+          <div className="absolute inset-x-0 bottom-0 lg:inset-y-0 lg:right-0 lg:left-auto max-w-full flex">
+            <div className="w-full lg:w-screen lg:max-w-md bg-white rounded-t-2xl lg:rounded-t-none shadow-2xl flex flex-col max-h-[85vh] lg:max-h-full h-[85vh] lg:h-full animate-slideUp lg:animate-slideLeft">
+              {/* Drag Handle for Mobile Bottom Sheet */}
+              <div className="lg:hidden flex justify-center py-2.5 bg-zinc-50 border-b border-zinc-150 rounded-t-2xl">
+                <div className="w-12 h-1 bg-zinc-300 rounded-full" />
+              </div>
               
               {/* Header */}
               <div className="px-6 py-5 border-b border-zinc-100 flex items-center justify-between">
@@ -587,8 +595,12 @@ function ShopLayoutContent({ children }: { children: React.ReactNode }) {
             className="absolute inset-0 bg-black/40 backdrop-blur-xs transition-opacity" 
             onClick={() => setIsWishlistOpen(false)}
           />
-          <div className="absolute inset-y-0 right-0 max-w-full flex">
-            <div className="w-screen max-w-md bg-white shadow-2xl flex flex-col animate-slideLeft">
+          <div className="absolute inset-x-0 bottom-0 lg:inset-y-0 lg:right-0 lg:left-auto max-w-full flex">
+            <div className="w-full lg:w-screen lg:max-w-md bg-white rounded-t-2xl lg:rounded-t-none shadow-2xl flex flex-col max-h-[85vh] lg:max-h-full h-[85vh] lg:h-full animate-slideUp lg:animate-slideLeft">
+              {/* Drag Handle for Mobile Bottom Sheet */}
+              <div className="lg:hidden flex justify-center py-2.5 bg-zinc-50 border-b border-zinc-150 rounded-t-2xl">
+                <div className="w-12 h-1 bg-zinc-300 rounded-full" />
+              </div>
               <div className="px-6 py-5 border-b border-zinc-100 flex items-center justify-between">
                 <h2 className="text-lg font-bold text-black flex items-center gap-2">
                   <Heart className="w-5 h-5 fill-black text-black" />
@@ -654,7 +666,7 @@ function ShopLayoutContent({ children }: { children: React.ReactNode }) {
       )}
 
       {/* Floating WhatsApp Live Chat Widget */}
-      <div className="fixed bottom-6 right-6 z-40">
+      <div className="fixed bottom-20 lg:bottom-6 right-4 lg:right-6 z-40">
         {!isChatOpen ? (
           <button
             onClick={() => setIsChatOpen(true)}
@@ -737,6 +749,239 @@ function ShopLayoutContent({ children }: { children: React.ReactNode }) {
           </div>
         )}
       </div>
+
+      {/* Mobile Bottom Navigation Bar */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-45 bg-[#faf8f6]/95 backdrop-blur-md border-t border-zinc-200 px-2 py-2 flex justify-around items-center shadow-lg pb-safe">
+        {/* Home Tab */}
+        <button
+          onClick={() => {
+            playSound.playClick();
+            setIsMobileSearchOpen(false);
+            setIsCartOpen(false);
+            setIsWishlistOpen(false);
+            router.push('/');
+          }}
+          className={`flex flex-col items-center gap-0.5 px-3 py-1 cursor-pointer transition-colors ${
+            !isMobileSearchOpen && !isCartOpen && !isWishlistOpen ? 'text-[#2b221a]' : 'text-zinc-400 hover:text-zinc-600'
+          }`}
+        >
+          <Home className="w-5 h-5" />
+          <span className="text-[10px] font-bold tracking-tight">Anasayfa</span>
+        </button>
+
+        {/* Search Tab */}
+        <button
+          onClick={() => {
+            playSound.playClick();
+            setIsMobileSearchOpen(true);
+            setIsCartOpen(false);
+            setIsWishlistOpen(false);
+          }}
+          className={`flex flex-col items-center gap-0.5 px-3 py-1 cursor-pointer transition-colors ${
+            isMobileSearchOpen ? 'text-[#2b221a]' : 'text-zinc-400 hover:text-zinc-600'
+          }`}
+        >
+          <Search className="w-5 h-5" />
+          <span className="text-[10px] font-bold tracking-tight">Arama</span>
+        </button>
+
+        {/* Favorites Tab */}
+        <button
+          onClick={() => {
+            playSound.playClick();
+            setIsWishlistOpen(true);
+            setIsCartOpen(false);
+            setIsMobileSearchOpen(false);
+          }}
+          className={`flex flex-col items-center gap-0.5 px-3 py-1 cursor-pointer transition-colors relative ${
+            isWishlistOpen ? 'text-[#2b221a]' : 'text-zinc-400 hover:text-zinc-600'
+          }`}
+        >
+          <Heart className="w-5 h-5" />
+          {wishlist.length > 0 && (
+            <span className="absolute top-0 right-2.5 bg-[#2b221a] text-white text-[9px] w-4 h-4 rounded-full flex items-center justify-center font-bold border border-white">
+              {wishlist.length}
+            </span>
+          )}
+          <span className="text-[10px] font-bold tracking-tight">Favoriler</span>
+        </button>
+
+        {/* Cart Tab */}
+        <button
+          onClick={() => {
+            playSound.playClick();
+            setIsCartOpen(true);
+            setIsWishlistOpen(false);
+            setIsMobileSearchOpen(false);
+          }}
+          className={`flex flex-col items-center gap-0.5 px-3 py-1 cursor-pointer transition-colors relative ${
+            isCartOpen ? 'text-[#2b221a]' : 'text-zinc-400 hover:text-zinc-600'
+          }`}
+        >
+          <ShoppingBag className="w-5 h-5" />
+          {cart.length > 0 && (
+            <span className="absolute top-0 right-2 bg-[#2b221a] text-white text-[9px] w-4 h-4 rounded-full flex items-center justify-center font-bold border border-white">
+              {cart.reduce((sum, item) => sum + item.quantity, 0)}
+            </span>
+          )}
+          <span className="text-[10px] font-bold tracking-tight">Sepetim</span>
+        </button>
+      </div>
+
+      {/* Mobile Search Overlay */}
+      {isMobileSearchOpen && (
+        <div className="lg:hidden fixed inset-0 z-50 bg-[#faf8f6] flex flex-col animate-fadeIn">
+          {/* Search Header */}
+          <div className="px-4 py-4 border-b border-zinc-200 flex items-center gap-3 bg-white">
+            <form onSubmit={handleSearchSubmit} className="flex-1 relative">
+              <input
+                type="text"
+                placeholder="Evcil dostunuz için ürün arayın..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full bg-zinc-50 border border-zinc-200 rounded-full py-2 pl-4 pr-10 text-sm focus:outline-hidden focus:border-[#2b221a] transition-all"
+                autoFocus
+              />
+              <button type="submit" className="absolute right-3 top-2.5 text-zinc-400 hover:text-[#2b221a] cursor-pointer">
+                <Search className="w-4.5 h-4.5" />
+              </button>
+            </form>
+            <button 
+              onClick={() => setIsMobileSearchOpen(false)}
+              className="text-xs font-bold text-zinc-650 hover:text-[#2b221a] border border-zinc-200 rounded-md px-3 py-2 bg-zinc-50/50 cursor-pointer"
+            >
+              İptal
+            </button>
+          </div>
+
+          {/* Search Content */}
+          <div className="flex-1 overflow-y-auto p-6 space-y-6">
+            {searchQuery.trim() !== '' ? (
+              /* Live Search Results */
+              <div>
+                <div className="flex justify-between items-center mb-4 border-b border-zinc-200 pb-2">
+                  <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-wider font-semibold">Arama Sonuçları</h3>
+                  <span className="text-xs text-zinc-550 font-bold">
+                    {
+                      products.filter(p => 
+                        p.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                        p.brand.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                        (p.description && p.description.toLowerCase().includes(searchQuery.toLowerCase()))
+                      ).length
+                    } Ürün Bulundu
+                  </span>
+                </div>
+                
+                {(() => {
+                  const results = products.filter(p => 
+                    p.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                    p.brand.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    (p.description && p.description.toLowerCase().includes(searchQuery.toLowerCase()))
+                  );
+
+                  if (results.length === 0) {
+                    return (
+                      <div className="py-12 text-center space-y-2 animate-fadeIn">
+                        <p className="text-sm font-medium text-zinc-500">Aramanıza uygun ürün bulunamadı.</p>
+                        <p className="text-xs text-zinc-400">Lütfen farklı kelimelerle tekrar deneyin.</p>
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <div className="space-y-4 animate-fadeIn">
+                      {results.slice(0, 10).map((product) => (
+                        <Link
+                          key={product.id}
+                          href={`/product/${product.id}`}
+                          onClick={() => setIsMobileSearchOpen(false)}
+                          className="flex gap-4 p-3 bg-white border border-zinc-200 hover:border-black rounded-lg transition-colors cursor-pointer shadow-2xs"
+                        >
+                          <div className="w-16 h-16 bg-zinc-900 rounded-md border border-zinc-150 overflow-hidden flex-shrink-0 flex items-center justify-center relative">
+                            {product.image ? (
+                              <img src={product.image} alt={product.title} className="w-full h-full object-cover" />
+                            ) : (
+                              <PawPrint className="w-6 h-6 text-white/50" />
+                            )}
+                          </div>
+                          <div className="flex-1 flex flex-col justify-between py-0.5">
+                            <div>
+                              <span className="text-[9px] text-[#c29f72] uppercase tracking-wider font-bold">{product.brand}</span>
+                              <h4 className="font-bold text-xs text-zinc-900 line-clamp-1 mt-0.5">{product.title}</h4>
+                            </div>
+                            <div className="flex items-baseline gap-1.5 mt-1.5">
+                              {product.originalPrice && (
+                                <span className="text-zinc-400 text-[10px] line-through">{product.originalPrice} TL</span>
+                              )}
+                              <span className="text-xs font-bold text-black font-mono">{product.price} TL</span>
+                            </div>
+                          </div>
+                        </Link>
+                      ))}
+                      {results.length > 10 && (
+                        <button
+                          onClick={() => {
+                            setIsMobileSearchOpen(false);
+                            router.push(`/shop?search=${encodeURIComponent(searchQuery.trim())}`);
+                          }}
+                          className="w-full text-center py-2.5 bg-black hover:bg-zinc-800 text-white rounded-md text-xs font-bold transition-colors cursor-pointer"
+                        >
+                          Tüm Sonuçları Gör ({results.length})
+                        </button>
+                      )}
+                    </div>
+                  );
+                })()}
+              </div>
+            ) : (
+              /* Suggestions (plain text style, no button boxes) */
+              <div className="space-y-6">
+                <div>
+                  <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-2 font-semibold">Popüler Aramalar</h3>
+                  <div className="flex flex-col">
+                    {['Kedi Maması', 'Köpek Tasması', 'Premium Konserve', 'Kuş Kafesi', 'Kum Kabı'].map((kw) => (
+                      <button
+                        key={kw}
+                        onClick={() => {
+                          setSearchQuery(kw);
+                          setIsMobileSearchOpen(false);
+                          router.push(`/shop?search=${encodeURIComponent(kw)}`);
+                        }}
+                        className="flex items-center gap-3 w-full text-left py-3 border-b border-zinc-200/60 text-sm font-semibold text-zinc-800 hover:text-black cursor-pointer transition-colors"
+                      >
+                        <Search className="w-4 h-4 text-zinc-400" />
+                        <span>{kw}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-2 font-semibold">Kategorilere Göz Atın</h3>
+                  <div className="flex flex-col">
+                    {categories.map((cat) => (
+                      <button
+                        key={cat.id}
+                        onClick={() => {
+                          setIsMobileSearchOpen(false);
+                          router.push(`/shop?category=${cat.id}`);
+                        }}
+                        className="flex items-center justify-between w-full text-left py-3 border-b border-zinc-200/60 text-sm font-semibold text-zinc-800 hover:text-black cursor-pointer transition-colors"
+                      >
+                        <div className="flex flex-col items-start">
+                          <span className="font-bold text-sm text-zinc-950">{cat.name}</span>
+                          <span className="text-[10px] text-zinc-400 font-normal leading-normal">{cat.description}</span>
+                        </div>
+                        <ChevronRight className="w-4 h-4 text-zinc-400" />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -81,7 +81,7 @@ export default function ShopHomePage() {
   return (
     <div className="space-y-16 pb-16">
       {/* Hero Section */}
-      <section className="relative bg-zinc-950 text-white overflow-hidden py-24 sm:py-32">
+      <section className="relative bg-zinc-950 text-white overflow-hidden pt-12 pb-16 sm:py-32">
         {/* Subtle grid pattern background */}
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#27272a_1px,transparent_1px),linear-gradient(to_bottom,#27272a_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] opacity-30" />
         
@@ -92,7 +92,7 @@ export default function ShopHomePage() {
           <p className="text-zinc-400 text-base sm:text-xl max-w-2xl mx-auto leading-relaxed">
             Seçkin markaların en taze mamaları, en sağlam tasmaları ve konforlu aksesuarları, özel fiyatlar ve hızlı teslimat avantajıyla kapınızda.
           </p>
-          <div className="pt-4 flex flex-col sm:flex-row justify-center items-center gap-4">
+          <div className="pt-2 flex flex-col sm:flex-row justify-center items-center gap-4">
             <Link 
               href="/shop" 
               className="w-full sm:w-auto bg-white text-black hover:bg-zinc-150 font-bold px-8 py-3.5 rounded-md flex items-center justify-center gap-2 text-sm transition-all duration-200 cursor-pointer shadow-md"
@@ -107,6 +107,35 @@ export default function ShopHomePage() {
               Siparişimi Takip Et
             </Link>
           </div>
+
+          {/* Interactive Dog & Cat Selection Cards (Mobile-optimized, hidden on desktop to preserve PC site) */}
+          <div className="lg:hidden grid grid-cols-2 gap-4 max-w-sm mx-auto pt-6">
+            <Link 
+              href="/shop?category=cat-1"
+              onClick={() => playSound.playClick()}
+              className="group relative h-36 rounded-xl overflow-hidden border border-white/10 hover:border-[#c29f72] transition-all cursor-pointer shadow-lg flex flex-col justify-end"
+            >
+              <img src="/hero_cat.png" alt="Kedi Ürünleri" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/45 to-transparent" />
+              <div className="relative z-10 p-3 text-left">
+                <span className="text-[9px] text-[#c29f72] font-extrabold tracking-wider uppercase block mb-0.5">MİYAV</span>
+                <h4 className="font-heading font-bold text-base text-white leading-tight">Kedi Dünyası</h4>
+              </div>
+            </Link>
+
+            <Link 
+              href="/shop?category=cat-2"
+              onClick={() => playSound.playClick()}
+              className="group relative h-36 rounded-xl overflow-hidden border border-white/10 hover:border-[#c29f72] transition-all cursor-pointer shadow-lg flex flex-col justify-end"
+            >
+              <img src="/hero_dog.png" alt="Köpek Ürünleri" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/45 to-transparent" />
+              <div className="relative z-10 p-3 text-left">
+                <span className="text-[9px] text-[#c29f72] font-extrabold tracking-wider uppercase block mb-0.5">HAV HAV</span>
+                <h4 className="font-heading font-bold text-base text-white leading-tight">Köpek Dünyası</h4>
+              </div>
+            </Link>
+          </div>
         </div>
       </section>
 
@@ -119,13 +148,13 @@ export default function ShopHomePage() {
           <p className="text-sm text-zinc-500">Evcil hayvanınızın tüm temel ihtiyaçlarına hızlıca göz atın.</p>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+        <div className="flex lg:grid overflow-x-auto lg:overflow-x-visible lg:grid-cols-5 gap-4 no-scrollbar pb-4 lg:pb-0 snap-x snap-mandatory">
           {promoCategories.map((cat) => {
             return (
               <Link 
                 key={cat.id} 
                 href={`/shop?category=${cat.id}`}
-                className="bg-white border border-zinc-200 hover:border-black rounded-lg p-6 text-center transition-all duration-250 cursor-pointer hover:shadow-md flex flex-col items-center justify-center group"
+                className="min-w-[140px] sm:min-w-[180px] lg:min-w-0 bg-white border border-zinc-200 hover:border-black rounded-lg p-6 text-center transition-all duration-250 cursor-pointer hover:shadow-md flex flex-col items-center justify-center group snap-start"
               >
                 {getCategoryIcon(cat)}
                 <h3 className="font-bold text-base text-zinc-900 mb-1">{cat.name}</h3>
@@ -180,7 +209,7 @@ export default function ShopHomePage() {
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           {featuredProducts.map((product) => {
             const isFav = wishlist.some(item => item.id === product.id);
             return (
@@ -273,7 +302,8 @@ export default function ShopHomePage() {
                       className="bg-black hover:bg-zinc-800 text-white p-2 rounded-md transition-colors cursor-pointer flex items-center justify-center gap-1.5 text-xs font-bold"
                     >
                       <ShoppingBag className="w-3.5 h-3.5" />
-                      Sepete Ekle
+                      <span className="hidden sm:inline">Sepete Ekle</span>
+                      <span className="sm:hidden">Ekle</span>
                     </button>
                   </div>
                 </div>
