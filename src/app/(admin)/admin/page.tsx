@@ -21,6 +21,23 @@ export default function AdminDashboardPage() {
   const [rating, setRating] = React.useState('4.97');
   const [count, setCount] = React.useState('875');
   const [couponVisible, setCouponVisible] = React.useState(true);
+  
+  // Biz Kimiz Page States
+  const [aboutUsTitle, setAboutUsTitle] = React.useState('');
+  const [aboutUsDesc, setAboutUsDesc] = React.useState('');
+  const [aboutUsNarrativeTitle, setAboutUsNarrativeTitle] = React.useState('');
+  const [aboutUsNarrativeContent, setAboutUsNarrativeContent] = React.useState('');
+  const [aboutUsQuoteTitle, setAboutUsQuoteTitle] = React.useState('');
+  const [aboutUsQuoteContent, setAboutUsQuoteContent] = React.useState('');
+
+  // Contact Page States
+  const [contactAddress, setContactAddress] = React.useState('');
+  const [contactPhone, setContactPhone] = React.useState('');
+  const [contactEmail, setContactEmail] = React.useState('');
+  const [contactHours, setContactHours] = React.useState('');
+  const [contactMapIframe, setContactMapIframe] = React.useState('');
+
+  const [settingsTab, setSettingsTab] = React.useState<'general' | 'about' | 'contact'>('general');
   const [isSaving, setIsSaving] = React.useState(false);
   const [saveMessage, setSaveMessage] = React.useState('');
 
@@ -35,6 +52,19 @@ export default function AdminDashboardPage() {
       if (settings.coupon_banner_visible !== undefined) {
         setCouponVisible(settings.coupon_banner_visible !== 'false');
       }
+
+      setAboutUsTitle(settings.about_us_title || 'Zuzu Pet Co. Hikayesi');
+      setAboutUsDesc(settings.about_us_description || 'Can dostlarımızın yaşam kalitesini artırmak ve onlara hak ettikleri premium bakımı sunmak amacıyla kurulan yeni nesil pet markasıyız.');
+      setAboutUsNarrativeTitle(settings.about_us_narrative_title || 'Tutkuyla Başlayan Yolculuk');
+      setAboutUsNarrativeContent(settings.about_us_narrative_content || 'Her şey, evlerimizi paylaştığımız patili dostlarımızın sağlıklı beslenmeye ve kaliteli aksesuarlara erişimini kolaylaştırma tutkusuyla başladı. Biz Zuzu Pet Co. olarak, sadece bir pet shop değil; evcil hayvan sahiplerinin güvenle alışveriş yapabileceği bir komünite ve yaşam tarzı markası yaratmayı amaçladık. En seçkin dünya markalarının mamalarından el yapımı deri tasmalara, konforlu yataklardan sağlıklı oyuncaklara kadar geniş bir ürün yelpazesini, en taze ve en güvenli şartlarda kapınıza kadar ulaştırıyoruz.');
+      setAboutUsQuoteTitle(settings.about_us_quote_title || '"Dostunuz İçin En İyisi"');
+      setAboutUsQuoteContent(settings.about_us_quote_content || 'Satışa sunduğumuz her ürün uzman ekibimiz tarafından test edilerek ve veteriner onayından geçirilerek seçilir.');
+
+      setContactAddress(settings.contact_address || 'Caferağa Mh. Şair Nefi Sk. No:18 D:1 Kadıköy / İstanbul');
+      setContactPhone(settings.contact_phone || '+90 216 123 45 67');
+      setContactEmail(settings.contact_email || 'destek@zuzupet.co');
+      setContactHours(settings.contact_hours || 'Hafta İçi & Hafta Sonu: 09:00 - 20:00');
+      setContactMapIframe(settings.contact_map_iframe || 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3011.6502096335345!2d29.023253276602323!3d40.98912232049755!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14cab8677eb931e9%3A0xe107d39366dfd90a!2zQ2FmZXJhxJ9hLCDFnsFhaXIgTmVmaSBTay4sIDM0NzEwIEthZMSxa8O2eS_EsHN0YW5idWw!5e0!3m2!1str!2str!4v1700000000000!5m2!1str!2str');
     }
   }, [settings]);
 
@@ -46,6 +76,20 @@ export default function AdminDashboardPage() {
         await updateSetting('customer_reviews_rating', rating);
         await updateSetting('customer_reviews_count', count);
         await updateSetting('coupon_banner_visible', couponVisible ? 'true' : 'false');
+
+        await updateSetting('about_us_title', aboutUsTitle);
+        await updateSetting('about_us_description', aboutUsDesc);
+        await updateSetting('about_us_narrative_title', aboutUsNarrativeTitle);
+        await updateSetting('about_us_narrative_content', aboutUsNarrativeContent);
+        await updateSetting('about_us_quote_title', aboutUsQuoteTitle);
+        await updateSetting('about_us_quote_content', aboutUsQuoteContent);
+
+        await updateSetting('contact_address', contactAddress);
+        await updateSetting('contact_phone', contactPhone);
+        await updateSetting('contact_email', contactEmail);
+        await updateSetting('contact_hours', contactHours);
+        await updateSetting('contact_map_iframe', contactMapIframe);
+
         setSaveMessage('Ayarlar başarıyla kaydedildi.');
         setTimeout(() => setSaveMessage(''), 3000);
       } catch (err) {
@@ -79,7 +123,7 @@ export default function AdminDashboardPage() {
         {/* Metric 1: Revenue */}
         <div className="bg-white border border-zinc-200 rounded-xl p-6 shadow-xs flex justify-between items-center group hover:border-black transition-all">
           <div className="space-y-2">
-            <span className="text-xs font-bold text-zinc-400 uppercase tracking-wider block">Toplam Ciro</span>
+            <span className="text-xs font-bold text-zinc-450 uppercase tracking-wider block">Toplam Ciro</span>
             <span className="text-3xl font-extrabold text-black font-mono block">
               {totalRevenue.toFixed(2)} TL
             </span>
@@ -95,7 +139,7 @@ export default function AdminDashboardPage() {
         {/* Metric 2: Orders */}
         <div className="bg-white border border-zinc-200 rounded-xl p-6 shadow-xs flex justify-between items-center group hover:border-black transition-all">
           <div className="space-y-2">
-            <span className="text-xs font-bold text-zinc-400 uppercase tracking-wider block">Aktif Siparişler</span>
+            <span className="text-xs font-bold text-zinc-450 uppercase tracking-wider block">Aktif Siparişler</span>
             <span className="text-3xl font-extrabold text-black font-mono block">
               {activeOrdersCount}
             </span>
@@ -217,51 +261,206 @@ export default function AdminDashboardPage() {
             </span>
           </div>
 
+          {/* Sub Tab Headers */}
+          <div className="flex border-b border-zinc-100 pb-2 gap-2">
+            <button
+              type="button"
+              onClick={() => setSettingsTab('general')}
+              className={`text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-md transition-all ${
+                settingsTab === 'general' ? 'bg-black text-white' : 'bg-zinc-100 text-zinc-600 hover:bg-zinc-200'
+              }`}
+            >
+              Mağaza & Kupon
+            </button>
+            <button
+              type="button"
+              onClick={() => setSettingsTab('about')}
+              className={`text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-md transition-all ${
+                settingsTab === 'about' ? 'bg-black text-white' : 'bg-zinc-100 text-zinc-600 hover:bg-zinc-200'
+              }`}
+            >
+              Biz Kimiz?
+            </button>
+            <button
+              type="button"
+              onClick={() => setSettingsTab('contact')}
+              className={`text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-md transition-all ${
+                settingsTab === 'contact' ? 'bg-black text-white' : 'bg-zinc-100 text-zinc-600 hover:bg-zinc-200'
+              }`}
+            >
+              Konum & İletişim
+            </button>
+          </div>
+
           <div className="space-y-4">
-            {/* Average Rating Input */}
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-zinc-700 block">Müşteri Yorumları Yıldız Derecesi</label>
-              <input
-                type="text"
-                placeholder="Örn: 4.97"
-                value={rating}
-                onChange={(e) => setRating(e.target.value)}
-                className="w-full bg-white border border-zinc-200 focus:border-black rounded-lg px-3 py-2 text-xs font-mono text-black outline-none transition-all"
-              />
-            </div>
+            {settingsTab === 'general' && (
+              <div className="space-y-4 animate-fadeIn">
+                {/* Average Rating Input */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-zinc-700 block">Müşteri Yorumları Yıldız Derecesi</label>
+                  <input
+                    type="text"
+                    placeholder="Örn: 4.97"
+                    value={rating}
+                    onChange={(e) => setRating(e.target.value)}
+                    className="w-full bg-white border border-zinc-200 focus:border-black rounded-lg px-3 py-2 text-xs font-mono text-black outline-none transition-all"
+                  />
+                </div>
 
-            {/* Reviews Count Input */}
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-zinc-700 block">Toplam Yorum Sayısı</label>
-              <input
-                type="number"
-                placeholder="Örn: 875"
-                value={count}
-                onChange={(e) => setCount(e.target.value)}
-                className="w-full bg-white border border-zinc-200 focus:border-black rounded-lg px-3 py-2 text-xs font-mono text-black outline-none transition-all"
-              />
-            </div>
+                {/* Reviews Count Input */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-zinc-700 block">Toplam Yorum Sayısı</label>
+                  <input
+                    type="number"
+                    placeholder="Örn: 875"
+                    value={count}
+                    onChange={(e) => setCount(e.target.value)}
+                    className="w-full bg-white border border-zinc-200 focus:border-black rounded-lg px-3 py-2 text-xs font-mono text-black outline-none transition-all"
+                  />
+                </div>
 
-            {/* Coupon Banner Visibility Toggle */}
-            <div className="flex items-center justify-between py-2 border-t border-b border-zinc-100">
-              <div className="space-y-0.5">
-                <span className="text-xs font-bold text-zinc-700 block">Kupon Bannerı Gösterimi</span>
-                <span className="text-[10px] text-zinc-400 block">Anasayfadaki ilk sipariş %20 indirim bannerı.</span>
+                {/* Coupon Banner Visibility Toggle */}
+                <div className="flex items-center justify-between py-2 border-t border-zinc-100">
+                  <div className="space-y-0.5">
+                    <span className="text-xs font-bold text-zinc-700 block">Kupon Bannerı Gösterimi</span>
+                    <span className="text-[10px] text-zinc-400 block">Anasayfadaki ilk sipariş %20 indirim bannerı.</span>
+                  </div>
+                  <label className="relative inline-flex items-center cursor-pointer select-none">
+                    <input 
+                      type="checkbox" 
+                      checked={couponVisible}
+                      onChange={(e) => setCouponVisible(e.target.checked)}
+                      className="sr-only peer"
+                    />
+                    <div className="w-9 h-5 bg-zinc-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-zinc-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-black"></div>
+                  </label>
+                </div>
               </div>
-              <label className="relative inline-flex items-center cursor-pointer select-none">
-                <input 
-                  type="checkbox" 
-                  checked={couponVisible}
-                  onChange={(e) => setCouponVisible(e.target.checked)}
-                  className="sr-only peer"
-                />
-                <div className="w-9 h-5 bg-zinc-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-zinc-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-black"></div>
-              </label>
-            </div>
+            )}
+
+            {settingsTab === 'about' && (
+              <div className="space-y-4 animate-fadeIn">
+                {/* About Us Page Content */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-zinc-700 block">Ana Başlık</label>
+                  <input
+                    type="text"
+                    value={aboutUsTitle}
+                    onChange={(e) => setAboutUsTitle(e.target.value)}
+                    className="w-full bg-white border border-zinc-200 focus:border-black rounded-lg px-3 py-2 text-xs text-black outline-none transition-all font-semibold"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-zinc-700 block">Kısa Açıklama</label>
+                  <textarea
+                    value={aboutUsDesc}
+                    onChange={(e) => setAboutUsDesc(e.target.value)}
+                    className="w-full bg-white border border-zinc-200 focus:border-black rounded-lg px-3 py-2 text-xs text-black outline-none transition-all min-h-[50px] resize-y"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-zinc-700 block">Hikaye Başlığı</label>
+                  <input
+                    type="text"
+                    value={aboutUsNarrativeTitle}
+                    onChange={(e) => setAboutUsNarrativeTitle(e.target.value)}
+                    className="w-full bg-white border border-zinc-200 focus:border-black rounded-lg px-3 py-2 text-xs text-black outline-none transition-all font-semibold"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-zinc-700 block">Hikaye İçeriği</label>
+                  <textarea
+                    value={aboutUsNarrativeContent}
+                    onChange={(e) => setAboutUsNarrativeContent(e.target.value)}
+                    className="w-full bg-white border border-zinc-200 focus:border-black rounded-lg px-3 py-2 text-xs text-black outline-none transition-all min-h-[100px] resize-y"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-zinc-700 block">Vurgulanan Alıntı Başlığı</label>
+                    <input
+                      type="text"
+                      value={aboutUsQuoteTitle}
+                      onChange={(e) => setAboutUsQuoteTitle(e.target.value)}
+                      className="w-full bg-white border border-zinc-200 focus:border-black rounded-lg px-3 py-2 text-xs text-black outline-none transition-all font-semibold"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-zinc-700 block">Vurgulanan Alıntı İçeriği</label>
+                    <input
+                      type="text"
+                      value={aboutUsQuoteContent}
+                      onChange={(e) => setAboutUsQuoteContent(e.target.value)}
+                      className="w-full bg-white border border-zinc-200 focus:border-black rounded-lg px-3 py-2 text-xs text-black outline-none transition-all"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {settingsTab === 'contact' && (
+              <div className="space-y-4 animate-fadeIn">
+                {/* Contact Page Content */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-zinc-700 block">Mağaza Adresi</label>
+                  <textarea
+                    value={contactAddress}
+                    onChange={(e) => setContactAddress(e.target.value)}
+                    className="w-full bg-white border border-zinc-200 focus:border-black rounded-lg px-3 py-2 text-xs text-black outline-none transition-all min-h-[50px] resize-y"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-zinc-700 block">Telefon</label>
+                    <input
+                      type="text"
+                      value={contactPhone}
+                      onChange={(e) => setContactPhone(e.target.value)}
+                      className="w-full bg-white border border-zinc-200 focus:border-black rounded-lg px-3 py-2 text-xs text-black outline-none transition-all font-mono"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-zinc-700 block">E-Posta</label>
+                    <input
+                      type="email"
+                      value={contactEmail}
+                      onChange={(e) => setContactEmail(e.target.value)}
+                      className="w-full bg-white border border-zinc-200 focus:border-black rounded-lg px-3 py-2 text-xs text-black outline-none transition-all"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-zinc-700 block">Çalışma Saatleri</label>
+                  <input
+                    type="text"
+                    value={contactHours}
+                    onChange={(e) => setContactHours(e.target.value)}
+                    className="w-full bg-white border border-zinc-200 focus:border-black rounded-lg px-3 py-2 text-xs text-black outline-none transition-all"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-zinc-700 block">Google Maps Embed URL</label>
+                  <input
+                    type="text"
+                    placeholder="https://www.google.com/maps/embed?..."
+                    value={contactMapIframe}
+                    onChange={(e) => setContactMapIframe(e.target.value)}
+                    className="w-full bg-white border border-zinc-200 focus:border-black rounded-lg px-3 py-2 text-[10px] font-mono text-black outline-none transition-all"
+                  />
+                </div>
+              </div>
+            )}
 
             {/* Save Message & Button */}
-            <div className="flex items-center justify-between pt-2">
-              <span className="text-[11px] text-zinc-500 font-semibold">{saveMessage}</span>
+            <div className="flex items-center justify-between pt-2 border-t border-zinc-100">
+              <span className="text-[11px] text-zinc-550 font-bold">{saveMessage}</span>
               <button
                 onClick={handleSaveSettings}
                 disabled={isSaving}

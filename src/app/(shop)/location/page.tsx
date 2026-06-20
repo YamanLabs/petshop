@@ -2,8 +2,17 @@
 
 import React from 'react';
 import { MapPin, Phone, Mail, Clock } from 'lucide-react';
+import { useApp } from '../../context/AppContext';
 
 export default function LocationPage() {
+  const { settings } = useApp();
+
+  const address = settings.contact_address || 'Caferağa Mh. Şair Nefi Sk. No:18 D:1 Kadıköy / İstanbul';
+  const phone = settings.contact_phone || '+90 216 123 45 67';
+  const email = settings.contact_email || 'destek@zuzupet.co';
+  const hours = settings.contact_hours || 'Hafta İçi & Hafta Sonu: 09:00 - 20:00';
+  const mapIframe = settings.contact_map_iframe || 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3011.6502096335345!2d29.023253276602323!3d40.98912232049755!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14cab8677eb931e9%3A0xe107d39366dfd90a!2zQ2FmZXJhxJ9hLCDFnsFhaXIgTmVmaSBTay4sIDM0NzEwIEthZMSxa8O2eS_EsHN0YW5idWw!5e0!3m2!1str!2str!4v1700000000000!5m2!1str!2str';
+
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-12 animate-fadeIn">
       {/* Title */}
@@ -26,49 +35,49 @@ export default function LocationPage() {
           
           <div className="space-y-4 text-xs">
             <div className="flex gap-4 items-start">
-              <div className="bg-zinc-100 text-zinc-950 p-2.5 rounded-lg border border-zinc-200">
+              <div className="bg-zinc-100 text-zinc-950 p-2.5 rounded-lg border border-zinc-200 flex-shrink-0">
                 <MapPin className="w-4.5 h-4.5" />
               </div>
               <div className="space-y-1">
                 <span className="font-bold text-zinc-450 block text-[10px] uppercase">Adres</span>
                 <p className="text-zinc-800 font-medium leading-relaxed">
-                  Caferağa Mh. Şair Nefi Sk. No:18 D:1 Kadıköy / İstanbul
+                  {address}
                 </p>
               </div>
             </div>
 
             <div className="flex gap-4 items-start">
-              <div className="bg-zinc-100 text-zinc-950 p-2.5 rounded-lg border border-zinc-200">
+              <div className="bg-zinc-100 text-zinc-950 p-2.5 rounded-lg border border-zinc-200 flex-shrink-0">
                 <Phone className="w-4.5 h-4.5" />
               </div>
               <div className="space-y-1">
                 <span className="font-bold text-zinc-450 block text-[10px] uppercase">Telefon</span>
-                <a href="tel:+902161234567" className="text-zinc-850 font-bold hover:underline">
-                  +90 216 123 45 67
+                <a href={`tel:${phone.replace(/\s+/g, '')}`} className="text-zinc-850 font-bold hover:underline">
+                  {phone}
                 </a>
               </div>
             </div>
 
             <div className="flex gap-4 items-start">
-              <div className="bg-zinc-100 text-zinc-950 p-2.5 rounded-lg border border-zinc-200">
+              <div className="bg-zinc-100 text-zinc-950 p-2.5 rounded-lg border border-zinc-200 flex-shrink-0">
                 <Mail className="w-4.5 h-4.5" />
               </div>
               <div className="space-y-1">
                 <span className="font-bold text-zinc-450 block text-[10px] uppercase">E-Posta</span>
-                <a href="mailto:destek@zuzupet.co" className="text-zinc-850 font-bold hover:underline">
-                  destek@zuzupet.co
+                <a href={`mailto:${email}`} className="text-zinc-850 font-bold hover:underline">
+                  {email}
                 </a>
               </div>
             </div>
 
             <div className="flex gap-4 items-start">
-              <div className="bg-zinc-100 text-zinc-950 p-2.5 rounded-lg border border-zinc-200">
+              <div className="bg-zinc-100 text-zinc-950 p-2.5 rounded-lg border border-zinc-200 flex-shrink-0">
                 <Clock className="w-4.5 h-4.5" />
               </div>
               <div className="space-y-1">
                 <span className="font-bold text-zinc-450 block text-[10px] uppercase">Çalışma Saatleri</span>
                 <p className="text-zinc-800 font-medium">
-                  Hafta İçi & Hafta Sonu: 09:00 - 20:00
+                  {hours}
                 </p>
               </div>
             </div>
@@ -79,7 +88,7 @@ export default function LocationPage() {
         <div className="lg:col-span-8 bg-white border border-zinc-200 rounded-xl p-3 sm:p-4 shadow-xs">
           <div className="aspect-video w-full rounded-lg overflow-hidden border border-zinc-200">
             <iframe
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3011.6502096335345!2d29.023253276602323!3d40.98912232049755!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14cab8677eb931e9%3A0xe107d39366dfd90a!2zQ2FmZXJhxJ9hLCDFnsFhaXIgTmVmaSBTay4sIDM0NzEwIEthZMSxa8O2eS_EsHN0YW5idWw!5e0!3m2!1str!2str!4v1700000000000!5m2!1str!2str"
+              src={mapIframe}
               width="100%"
               height="100%"
               style={{ border: 0 }}
