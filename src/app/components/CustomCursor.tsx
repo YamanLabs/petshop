@@ -147,7 +147,7 @@ export default function CustomCursor() {
       {ripples.map((ripple) => (
         <div
           key={ripple.id}
-          className="fixed pointer-events-none z-50 rounded-full border border-black/40 bg-black/5 animate-[ping_0.6s_ease-out_forwards]"
+          className="fixed pointer-events-none z-[9999] rounded-full border border-black/40 bg-black/5 animate-[ping_0.6s_ease-out_forwards]"
           style={{
             left: ripple.x - 16,
             top: ripple.y - 16,
@@ -159,7 +159,7 @@ export default function CustomCursor() {
 
       {/* Main trailing cursor */}
       <div
-        className="fixed pointer-events-none z-50 transition-transform duration-100 ease-out select-none"
+        className="fixed pointer-events-none z-[9999] transition-transform duration-100 ease-out select-none"
         style={{
           left: trailPosition.x,
           top: trailPosition.y,
