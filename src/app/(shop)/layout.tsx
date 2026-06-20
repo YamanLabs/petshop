@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useApp } from '../context/AppContext';
@@ -26,7 +26,7 @@ import {
 import { Category, Product } from '../types';
 import { playSound } from '../utils/sound';
 
-export default function ShopLayout({ children }: { children: React.ReactNode }) {
+function ShopLayoutContent({ children }: { children: React.ReactNode }) {
   const { 
     cart, 
     wishlist, 
@@ -738,5 +738,20 @@ export default function ShopLayout({ children }: { children: React.ReactNode }) 
         )}
       </div>
     </div>
+  );
+}
+
+export default function ShopLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-zinc-50">
+        <div className="flex flex-col items-center gap-3">
+          <PawPrint className="w-10 h-10 animate-bounce text-black" />
+          <span className="text-zinc-500 text-sm font-medium">Yükleniyor...</span>
+        </div>
+      </div>
+    }>
+      <ShopLayoutContent>{children}</ShopLayoutContent>
+    </Suspense>
   );
 }
