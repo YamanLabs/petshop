@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Product, Category, Order, Coupon, Review, ProductVariation } from '../types';
 import { playSound } from '../utils/sound';
+import { supabase } from '../utils/supabase';
 
 interface CartItem {
   product: Product;
@@ -276,26 +277,87 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [wishlist, setWishlist] = useState<Product[]>([]);
   const [isMounted, setIsMounted] = useState(false);
 
-  // Load from localstorage on mount
+  // Load from localstorage & Supabase on mount
   useEffect(() => {
-    const localProducts = localStorage.getItem('pt_products');
-    const localCategories = localStorage.getItem('pt_categories');
-    const localOrders = localStorage.getItem('pt_orders');
-    const localCoupons = localStorage.getItem('pt_coupons');
-    const localCart = localStorage.getItem('pt_cart');
-    const localWishlist = localStorage.getItem('pt_wishlist');
+    async function loadInitialData() {
+      const localCategories = localStorage.getItem('pt_categories');
+      const localOrders = localStorage.getItem('pt_orders');
+      const localCoupons = localStorage.getItem('pt_coupons');
+      const localCart = localStorage.getItem('pt_cart');
+      const localWishlist = localStorage.getItem('pt_wishlist');
 
-    setProducts(localProducts ? JSON.parse(localProducts) : initialProducts);
-    setCategories(localCategories ? JSON.parse(localCategories) : initialCategories);
-    setOrders(localOrders ? JSON.parse(localOrders) : initialOrders);
-    setCoupons(localCoupons ? JSON.parse(localCoupons) : initialCoupons);
-    setCart(localCart ? JSON.parse(localCart) : []);
-    setWishlist(localWishlist ? JSON.parse(localWishlist) : []);
-    
-    setIsMounted(true);
+      setCategories(localCategories ? JSON.parse(localCategories) : initialCategories);
+      setOrders(localOrders ? JSON.parse(localOrders) : initialOrders);
+      setCoupons(localCoupons ? JSON.parse(localCoupons) : initialCoupons);
+      setCart(localCart ? JSON.parse(localCart) : []);
+      setWishlist(localWishlist ? JSON.parse(localWishlist) : []);
+
+      // Load products from Supabase
+      let loadedProducts: Product[] = [];
+      const hasSupabase = process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+      if (hasSupabase) {
+        try {
+          const { data, error } = await supabase.from('products').select('*');
+          if (error) throw error;
+          if (data && data.length > 0) {
+            loadedProducts = data.map((dbProduct: any) => ({
+              id: dbProduct.id,
+              title: dbProduct.title,
+              description: dbProduct.description || '',
+              price: Number(dbProduct.price),
+              originalPrice: dbProduct.original_price ? Number(dbProduct.original_price) : undefined,
+              image: dbProduct.image || '',
+              categoryId: dbProduct.category_id || '',
+              brand: dbProduct.brand || '',
+              stock: Number(dbProduct.stock ?? 0),
+              rating: Number(dbProduct.rating ?? 5),
+              reviews: Array.isArray(dbProduct.reviews) ? dbProduct.reviews : [],
+              variations: Array.isArray(dbProduct.variations) ? dbProduct.variations : [],
+              metaTitle: dbProduct.meta_title || '',
+              metaDescription: dbProduct.meta_description || '',
+              metaKeywords: dbProduct.meta_keywords || ''
+            }));
+          } else {
+            console.log("Supabase products table is empty. Seeding initial products...");
+            const dbSeed = initialProducts.map(p => ({
+              id: p.id,
+              title: p.title,
+              description: p.description,
+              price: p.price,
+              original_price: p.originalPrice || null,
+              image: p.image,
+              category_id: p.categoryId,
+              brand: p.brand,
+              stock: p.stock,
+              rating: p.rating,
+              reviews: p.reviews,
+              variations: p.variations || [],
+              meta_title: p.metaTitle || null,
+              meta_description: p.metaDescription || null,
+              meta_keywords: p.metaKeywords || null
+            }));
+            const { error: seedError } = await supabase.from('products').insert(dbSeed);
+            if (seedError) console.error("Failed to seed Supabase products:", seedError);
+            loadedProducts = initialProducts;
+          }
+        } catch (err) {
+          console.error("Failed to load products from Supabase, falling back to LocalStorage:", err);
+          const localProducts = localStorage.getItem('pt_products');
+          loadedProducts = localProducts ? JSON.parse(localProducts) : initialProducts;
+        }
+      } else {
+        const localProducts = localStorage.getItem('pt_products');
+        loadedProducts = localProducts ? JSON.parse(localProducts) : initialProducts;
+      }
+
+      setProducts(loadedProducts);
+      setIsMounted(true);
+    }
+
+    loadInitialData();
   }, []);
 
-  // Save changes to localStorage when state changes
+  // Save changes to localStorage when state changes (as backup cache)
   useEffect(() => {
     if (!isMounted) return;
     localStorage.setItem('pt_products', JSON.stringify(products));
@@ -381,7 +443,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   // Admin CRUD for Products
-  const addProduct = (prodData: Omit<Product, 'id' | 'rating' | 'reviews'>) => {
+  const addProduct = async (prodData: Omit<Product, 'id' | 'rating' | 'reviews'>) => {
     const newProduct: Product = {
       ...prodData,
       id: `prod-${Date.now()}`,
@@ -389,9 +451,35 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       reviews: []
     };
     setProducts((prev) => [newProduct, ...prev]);
+
+    const hasSupabase = process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    if (hasSupabase) {
+      try {
+        const { error } = await supabase.from('products').insert({
+          id: newProduct.id,
+          title: newProduct.title,
+          description: newProduct.description,
+          price: newProduct.price,
+          original_price: newProduct.originalPrice || null,
+          image: newProduct.image,
+          category_id: newProduct.categoryId,
+          brand: newProduct.brand,
+          stock: newProduct.stock,
+          rating: newProduct.rating,
+          reviews: newProduct.reviews,
+          variations: newProduct.variations || [],
+          meta_title: newProduct.metaTitle || null,
+          meta_description: newProduct.metaDescription || null,
+          meta_keywords: newProduct.metaKeywords || null
+        });
+        if (error) throw error;
+      } catch (err) {
+        console.error("Failed to add product to Supabase:", err);
+      }
+    }
   };
 
-  const updateProduct = (updatedProd: Product) => {
+  const updateProduct = async (updatedProd: Product) => {
     setProducts((prev) => prev.map((p) => (p.id === updatedProd.id ? updatedProd : p)));
     // also update details inside the cart if it matches
     setCart((prev) =>
@@ -399,12 +487,47 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         item.product.id === updatedProd.id ? { ...item, product: updatedProd } : item
       )
     );
+
+    const hasSupabase = process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    if (hasSupabase) {
+      try {
+        const { error } = await supabase.from('products').update({
+          title: updatedProd.title,
+          description: updatedProd.description,
+          price: updatedProd.price,
+          original_price: updatedProd.originalPrice || null,
+          image: updatedProd.image,
+          category_id: updatedProd.categoryId,
+          brand: updatedProd.brand,
+          stock: updatedProd.stock,
+          rating: updatedProd.rating,
+          reviews: updatedProd.reviews,
+          variations: updatedProd.variations || [],
+          meta_title: updatedProd.metaTitle || null,
+          meta_description: updatedProd.metaDescription || null,
+          meta_keywords: updatedProd.metaKeywords || null
+        }).eq('id', updatedProd.id);
+        if (error) throw error;
+      } catch (err) {
+        console.error("Failed to update product in Supabase:", err);
+      }
+    }
   };
 
-  const deleteProduct = (productId: string) => {
+  const deleteProduct = async (productId: string) => {
     setProducts((prev) => prev.filter((p) => p.id !== productId));
     removeFromCart(productId);
     removeFromWishlist(productId);
+
+    const hasSupabase = process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    if (hasSupabase) {
+      try {
+        const { error } = await supabase.from('products').delete().eq('id', productId);
+        if (error) throw error;
+      } catch (err) {
+        console.error("Failed to delete product from Supabase:", err);
+      }
+    }
   };
 
   // Admin CRUD for Categories
@@ -473,12 +596,19 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
     setOrders((prev) => [newOrder, ...prev]);
 
-    // Reduce stock of products
+    // Reduce stock of products locally and in Supabase
+    const hasSupabase = process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
     setProducts((prevProducts) =>
       prevProducts.map((p) => {
         const orderItem = orderData.items.find((item) => item.productId === p.id);
         if (orderItem) {
-          return { ...p, stock: Math.max(0, p.stock - orderItem.quantity) };
+          const newStock = Math.max(0, p.stock - orderItem.quantity);
+          if (hasSupabase) {
+            supabase.from('products').update({ stock: newStock }).eq('id', p.id).then(({ error }) => {
+              if (error) console.error("Failed to update stock in Supabase:", error);
+            });
+          }
+          return { ...p, stock: newStock };
         }
         return p;
       })
