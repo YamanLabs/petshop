@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { Product, Category, Order, Coupon, Review, ProductVariation } from '../types';
+import { Product, Category, Order, Coupon, Review, ProductVariation, CustomerReview } from '../types';
 import { playSound } from '../utils/sound';
 import { supabase } from '../utils/supabase';
 
@@ -18,6 +18,7 @@ interface AppContextType {
   coupons: Coupon[];
   cart: CartItem[];
   wishlist: Product[];
+  customerReviews: CustomerReview[];
   isMounted: boolean;
   addToCart: (product: Product, quantity?: number, variation?: string) => void;
   removeFromCart: (productId: string, variation?: string) => void;
@@ -35,6 +36,9 @@ interface AppContextType {
   addCoupon: (coupon: Coupon) => void;
   updateCoupon: (coupon: Coupon) => void;
   deleteCoupon: (code: string) => void;
+  addCustomerReview: (review: Omit<CustomerReview, 'id'>) => void;
+  updateCustomerReview: (review: CustomerReview) => void;
+  deleteCustomerReview: (reviewId: string) => void;
   addOrder: (orderData: {
     customerName: string;
     email: string;
@@ -268,6 +272,52 @@ const initialOrders: Order[] = [
   }
 ];
 
+// Initial Customer Reviews Showcase
+const initialCustomerReviews: CustomerReview[] = [
+  {
+    id: 'rev-show-1',
+    text: "10 kg'lık kızım için 4 beden aldım. Rengi çok tatlı. Kargo da hemen ve sorunsuz geldi. Tavsiye...",
+    rating: 5,
+    userName: "Ecesu Altın",
+    productName: "Zuzu Signature Köpek Yağmurluğu"
+  },
+  {
+    id: 'rev-show-2',
+    text: "Bedeni tam oldu kumaşın kalitesi inanılmaz indirimden aldığım için fiyat çok iyi...",
+    rating: 5,
+    userName: "BETÜL BİLİR DİDİN",
+    productName: "Zuzu Flow Köpek Hoodie"
+  },
+  {
+    id: 'rev-show-3',
+    text: "Bedenden kaynaklı düşük verdim kalite güzel ama diğer ürünle aynı beden almamıza...",
+    rating: 3,
+    userName: "BETÜL BİLİR DİDİN",
+    productName: "Zuzu Cozy Köpek Polar Hırka"
+  },
+  {
+    id: 'rev-show-4',
+    text: "çok pratik ve tarz bir yağmurluk tüm arkadaşlarıma önerdim",
+    rating: 5,
+    userName: "nisan",
+    productName: "Zuzu Active Köpek Tasması"
+  },
+  {
+    id: 'rev-show-5',
+    text: "Kumaşı kalınlığı çok iyi tam kışlık, tüyleri hiç rahatsız etmiyor.",
+    rating: 5,
+    userName: "Hakan U.",
+    productName: "Zuzu Flow Köpek Hoodie"
+  },
+  {
+    id: 'rev-show-6',
+    text: "Köpeğim giyince çok rahat hareket ediyor, kalıpları gayet düzgün.",
+    rating: 4,
+    userName: "Ayşe T.",
+    productName: "Zuzu Cozy Köpek Polar Hırka"
+  }
+];
+
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -275,6 +325,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [coupons, setCoupons] = useState<Coupon[]>([]);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [wishlist, setWishlist] = useState<Product[]>([]);
+  const [customerReviews, setCustomerReviews] = useState<CustomerReview[]>([]);
   const [isMounted, setIsMounted] = useState(false);
 
   // Load from localstorage & Supabase on mount
@@ -285,9 +336,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       const localCoupons = localStorage.getItem('pt_coupons');
       const localCart = localStorage.getItem('pt_cart');
       const localWishlist = localStorage.getItem('pt_wishlist');
+      const localReviews = localStorage.getItem('pt_customer_reviews');
 
-      setCategories(localCategories ? JSON.parse(localCategories) : initialCategories);
-      setOrders(localOrders ? JSON.parse(localOrders) : initialOrders);
       setCart(localCart ? JSON.parse(localCart) : []);
       setWishlist(localWishlist ? JSON.parse(localWishlist) : []);
 
@@ -385,8 +435,128 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         loadedCoupons = localCoupons ? JSON.parse(localCoupons) : initialCoupons;
       }
 
+      // Load categories from Supabase
+      let loadedCategories: Category[] = [];
+      if (hasSupabase) {
+        try {
+          const { data, error } = await supabase.from('categories').select('*');
+          if (error) throw error;
+          if (data && data.length > 0) {
+            loadedCategories = data.map((c: any) => ({
+              id: c.id,
+              name: c.name,
+              parentId: c.parent_id || null,
+              slug: c.slug
+            }));
+          } else {
+            console.log("Supabase categories table is empty. Seeding initial categories...");
+            const dbSeed = initialCategories.map(c => ({
+              id: c.id,
+              name: c.name,
+              parent_id: c.parentId || null,
+              slug: c.slug
+            }));
+            const { error: seedError } = await supabase.from('categories').insert(dbSeed);
+            if (seedError) console.error("Failed to seed Supabase categories:", seedError);
+            loadedCategories = initialCategories;
+          }
+        } catch (err) {
+          console.error("Failed to load categories from Supabase, falling back to LocalStorage:", err);
+          loadedCategories = localCategories ? JSON.parse(localCategories) : initialCategories;
+        }
+      } else {
+        loadedCategories = localCategories ? JSON.parse(localCategories) : initialCategories;
+      }
+
+      // Load orders from Supabase
+      let loadedOrders: Order[] = [];
+      if (hasSupabase) {
+        try {
+          const { data, error } = await supabase.from('orders').select('*').order('created_at', { ascending: false });
+          if (error) throw error;
+          if (data && data.length > 0) {
+            loadedOrders = data.map((o: any) => ({
+              id: o.id,
+              trackingCode: o.tracking_code,
+              customerName: o.customer_name,
+              email: o.email,
+              phone: o.phone,
+              address: o.address,
+              items: Array.isArray(o.items) ? o.items : [],
+              subtotal: Number(o.subtotal),
+              discount: Number(o.discount),
+              total: Number(o.total),
+              status: o.status as any,
+              date: o.date
+            }));
+          } else {
+            console.log("Supabase orders table is empty. Seeding initial orders...");
+            const dbSeed = initialOrders.map(o => ({
+              id: o.id,
+              tracking_code: o.trackingCode,
+              customer_name: o.customerName,
+              email: o.email,
+              phone: o.phone,
+              address: o.address,
+              items: o.items,
+              subtotal: o.subtotal,
+              discount: o.discount,
+              total: o.total,
+              status: o.status,
+              date: o.date
+            }));
+            const { error: seedError } = await supabase.from('orders').insert(dbSeed);
+            if (seedError) console.error("Failed to seed Supabase orders:", seedError);
+            loadedOrders = initialOrders;
+          }
+        } catch (err) {
+          console.error("Failed to load orders from Supabase, falling back to LocalStorage:", err);
+          loadedOrders = localOrders ? JSON.parse(localOrders) : initialOrders;
+        }
+      } else {
+        loadedOrders = localOrders ? JSON.parse(localOrders) : initialOrders;
+      }
+
+      // Load customer reviews from Supabase
+      let loadedCustomerReviews: CustomerReview[] = [];
+      if (hasSupabase) {
+        try {
+          const { data, error } = await supabase.from('customer_reviews').select('*');
+          if (error) throw error;
+          if (data && data.length > 0) {
+            loadedCustomerReviews = data.map((r: any) => ({
+              id: r.id,
+              text: r.text,
+              rating: Number(r.rating),
+              userName: r.user_name,
+              productName: r.product_name
+            }));
+          } else {
+            console.log("Supabase customer reviews table is empty. Seeding initial customer reviews...");
+            const dbSeed = initialCustomerReviews.map(r => ({
+              id: r.id,
+              text: r.text,
+              rating: r.rating,
+              user_name: r.userName,
+              product_name: r.productName
+            }));
+            const { error: seedError } = await supabase.from('customer_reviews').insert(dbSeed);
+            if (seedError) console.error("Failed to seed Supabase customer reviews:", seedError);
+            loadedCustomerReviews = initialCustomerReviews;
+          }
+        } catch (err) {
+          console.error("Failed to load customer reviews from Supabase, falling back to LocalStorage:", err);
+          loadedCustomerReviews = localReviews ? JSON.parse(localReviews) : initialCustomerReviews;
+        }
+      } else {
+        loadedCustomerReviews = localReviews ? JSON.parse(localReviews) : initialCustomerReviews;
+      }
+
       setProducts(loadedProducts);
       setCoupons(loadedCoupons);
+      setCategories(loadedCategories);
+      setOrders(loadedOrders);
+      setCustomerReviews(loadedCustomerReviews);
       setIsMounted(true);
     }
 
@@ -423,6 +593,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     if (!isMounted) return;
     localStorage.setItem('pt_wishlist', JSON.stringify(wishlist));
   }, [wishlist, isMounted]);
+
+  useEffect(() => {
+    if (!isMounted) return;
+    localStorage.setItem('pt_customer_reviews', JSON.stringify(customerReviews));
+  }, [customerReviews, isMounted]);
 
   // Cart operations
   const addToCart = (product: Product, quantity = 1, variation?: string) => {
@@ -567,7 +742,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   // Admin CRUD for Categories
-  const addCategory = (catData: Omit<Category, 'id' | 'slug'>) => {
+  const addCategory = async (catData: Omit<Category, 'id' | 'slug'>) => {
     const slug = catData.name
       .toLowerCase()
       .trim()
@@ -580,14 +755,53 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       slug
     };
     setCategories((prev) => [...prev, newCategory]);
+
+    const hasSupabase = process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    if (hasSupabase) {
+      try {
+        const { error } = await supabase.from('categories').insert({
+          id: newCategory.id,
+          name: newCategory.name,
+          parent_id: newCategory.parentId || null,
+          slug: newCategory.slug
+        });
+        if (error) throw error;
+      } catch (err) {
+        console.error("Failed to add category to Supabase:", err);
+      }
+    }
   };
 
-  const updateCategory = (updatedCat: Category) => {
+  const updateCategory = async (updatedCat: Category) => {
     setCategories((prev) => prev.map((c) => (c.id === updatedCat.id ? updatedCat : c)));
+
+    const hasSupabase = process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    if (hasSupabase) {
+      try {
+        const { error } = await supabase.from('categories').update({
+          name: updatedCat.name,
+          parent_id: updatedCat.parentId || null,
+          slug: updatedCat.slug
+        }).eq('id', updatedCat.id);
+        if (error) throw error;
+      } catch (err) {
+        console.error("Failed to update category in Supabase:", err);
+      }
+    }
   };
 
-  const deleteCategory = (categoryId: string) => {
+  const deleteCategory = async (categoryId: string) => {
     setCategories((prev) => prev.filter((c) => c.id !== categoryId && c.parentId !== categoryId));
+
+    const hasSupabase = process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    if (hasSupabase) {
+      try {
+        const { error } = await supabase.from('categories').delete().eq('id', categoryId);
+        if (error) throw error;
+      } catch (err) {
+        console.error("Failed to delete category from Supabase:", err);
+      }
+    }
   };
 
   // Admin CRUD for Coupons
@@ -694,6 +908,26 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       })
     );
 
+    // Save order in Supabase
+    if (hasSupabase) {
+      supabase.from('orders').insert({
+        id: newOrder.id,
+        tracking_code: newOrder.trackingCode,
+        customer_name: newOrder.customerName,
+        email: newOrder.email,
+        phone: newOrder.phone,
+        address: newOrder.address,
+        items: newOrder.items,
+        subtotal: newOrder.subtotal,
+        discount: newOrder.discount,
+        total: newOrder.total,
+        status: newOrder.status,
+        date: newOrder.date
+      }).then(({ error }) => {
+        if (error) console.error("Failed to insert order in Supabase:", error);
+      });
+    }
+
     // Increment coupon usage count if a coupon was applied
     if (typeof window !== 'undefined') {
       const couponStr = sessionStorage.getItem('applied_coupon');
@@ -726,8 +960,76 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return trackingCode;
   };
 
-  const updateOrderStatus = (orderId: string, status: Order['status']) => {
+  const updateOrderStatus = async (orderId: string, status: Order['status']) => {
     setOrders((prev) => prev.map((o) => (o.id === orderId ? { ...o, status } : o)));
+
+    const hasSupabase = process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    if (hasSupabase) {
+      try {
+        const { error } = await supabase.from('orders').update({ status }).eq('id', orderId);
+        if (error) throw error;
+      } catch (err) {
+        console.error("Failed to update order status in Supabase:", err);
+      }
+    }
+  };
+
+  // Customer Reviews Showcase CRUD
+  const addCustomerReview = async (reviewData: Omit<CustomerReview, 'id'>) => {
+    const newReview: CustomerReview = {
+      ...reviewData,
+      id: `rev-show-${Date.now()}`
+    };
+    setCustomerReviews((prev) => [newReview, ...prev]);
+
+    const hasSupabase = process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    if (hasSupabase) {
+      try {
+        const { error } = await supabase.from('customer_reviews').insert({
+          id: newReview.id,
+          text: newReview.text,
+          rating: newReview.rating,
+          user_name: newReview.userName,
+          product_name: newReview.productName
+        });
+        if (error) throw error;
+      } catch (err) {
+        console.error("Failed to add customer review to Supabase:", err);
+      }
+    }
+  };
+
+  const updateCustomerReview = async (updatedReview: CustomerReview) => {
+    setCustomerReviews((prev) => prev.map((r) => (r.id === updatedReview.id ? updatedReview : r)));
+
+    const hasSupabase = process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    if (hasSupabase) {
+      try {
+        const { error } = await supabase.from('customer_reviews').update({
+          text: updatedReview.text,
+          rating: updatedReview.rating,
+          user_name: updatedReview.userName,
+          product_name: updatedReview.productName
+        }).eq('id', updatedReview.id);
+        if (error) throw error;
+      } catch (err) {
+        console.error("Failed to update customer review in Supabase:", err);
+      }
+    }
+  };
+
+  const deleteCustomerReview = async (reviewId: string) => {
+    setCustomerReviews((prev) => prev.filter((r) => r.id !== reviewId));
+
+    const hasSupabase = process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    if (hasSupabase) {
+      try {
+        const { error } = await supabase.from('customer_reviews').delete().eq('id', reviewId);
+        if (error) throw error;
+      } catch (err) {
+        console.error("Failed to delete customer review from Supabase:", err);
+      }
+    }
   };
 
   return (
@@ -739,6 +1041,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         coupons,
         cart,
         wishlist,
+        customerReviews,
         isMounted,
         addToCart,
         removeFromCart,
@@ -755,6 +1058,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         addCoupon,
         updateCoupon,
         deleteCoupon,
+        addCustomerReview,
+        updateCustomerReview,
+        deleteCustomerReview,
         addOrder,
         updateOrderStatus
       }}

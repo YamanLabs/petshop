@@ -67,3 +67,11 @@ export interface Order {
   status: 'Hazırlanıyor' | 'Kargoya Verildi' | 'Teslim Edildi';
   date: string;
 }
+
+export interface CustomerReview {
+  id: string;
+  text: string;
+  rating: number;
+  userName: string;
+  productName: string;
+}

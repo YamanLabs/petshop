@@ -25,56 +25,10 @@ import {
 import { playSound } from '../utils/sound';
 
 export default function ShopHomePage() {
-  const { products, addToCart, addToWishlist, wishlist } = useApp();
+  const { products, addToCart, addToWishlist, wishlist, customerReviews } = useApp();
 
   // Pick first 4 products as featured items
   const featuredProducts = products.slice(0, 4);
-
-  // Customer showcase / "Sizden Gelenler" data
-  const customerReviews = [
-    {
-      id: 1,
-      text: "10 kg'lık kızım için 4 beden aldım. Rengi çok tatlı. Kargo da hemen ve sorunsuz geldi. Tavsiye...",
-      rating: 5,
-      userName: "Ecesu Altın",
-      productName: "Zuzu Signature Köpek Yağmurluğu"
-    },
-    {
-      id: 2,
-      text: "Bedeni tam oldu kumaşın kalitesi inanılmaz indirimden aldığım için fiyat çok iyi...",
-      rating: 5,
-      userName: "BETÜL BİLİR DİDİN",
-      productName: "Zuzu Flow Köpek Hoodie"
-    },
-    {
-      id: 3,
-      text: "Bedenden kaynaklı düşük verdim kalite güzel ama diğer ürünle aynı beden almamıza...",
-      rating: 3,
-      userName: "BETÜL BİLİR DİDİN",
-      productName: "Zuzu Cozy Köpek Polar Hırka"
-    },
-    {
-      id: 4,
-      text: "çok pratik ve tarz bir yağmurluk tüm arkadaşlarıma önerdim",
-      rating: 5,
-      userName: "nisan",
-      productName: "Zuzu Active Köpek Tasması"
-    },
-    {
-      id: 5,
-      text: "Kumaşı kalınlığı çok iyi tam kışlık, tüyleri hiç rahatsız etmiyor.",
-      rating: 5,
-      userName: "Hakan U.",
-      productName: "Zuzu Flow Köpek Hoodie"
-    },
-    {
-      id: 6,
-      text: "Köpeğim giyince çok rahat hareket ediyor, kalıpları gayet düzgün.",
-      rating: 4,
-      userName: "Ayşe T.",
-      productName: "Zuzu Cozy Köpek Polar Hırka"
-    }
-  ];
 
   const reviewsScrollRef = useRef<HTMLDivElement>(null);
 
@@ -337,10 +291,11 @@ export default function ShopHomePage() {
           >
             {customerReviews.map((review) => {
               // Assign a pet icon based on index or ID
+              const idNum = typeof review.id === 'number' ? review.id : (parseInt(review.id.replace(/\D/g, '')) || 0);
               const IconComponent = 
-                review.id % 4 === 1 ? Dog :
-                review.id % 4 === 2 ? Cat :
-                review.id % 4 === 3 ? Rabbit : Bird;
+                idNum % 4 === 1 ? Dog :
+                idNum % 4 === 2 ? Cat :
+                idNum % 4 === 3 ? Rabbit : Bird;
 
               return (
                 <div 

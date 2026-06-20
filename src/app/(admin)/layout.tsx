@@ -14,7 +14,8 @@ import {
   Menu, 
   X, 
   PawPrint,
-  Settings
+  Settings,
+  MessageSquare
 } from 'lucide-react';
 import Logo from '../components/Logo';
 
@@ -33,6 +34,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { name: 'Ürün Yönetimi', path: '/admin/products', icon: Box },
     { name: 'Kategoriler (Tree)', path: '/admin/categories', icon: FolderTree },
     { name: 'Kupon Yönetimi', path: '/admin/coupons', icon: Tag },
+    { name: 'Sizden Gelenler', path: '/admin/reviews', icon: MessageSquare },
   ];
 
   if (!isMounted) return null;
