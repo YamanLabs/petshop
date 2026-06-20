@@ -209,7 +209,7 @@ function OrderTrackingContent() {
                     </div>
                     <div>
                       <span className="font-bold text-zinc-450 block text-[10px] uppercase">Kargo Firması</span>
-                      <span className="font-semibold">Pawly Express</span>
+                      <span className="font-semibold">Zuzu Express</span>
                     </div>
                   </div>
                 </div>

@@ -67,7 +67,7 @@ const initialCategories: Category[] = [
 
 // Initial Coupons
 const initialCoupons: Coupon[] = [
-  { code: 'PAWLY20', type: 'percentage', value: 20, active: true, usageCount: 5 },
+  { code: 'ZUZU20', type: 'percentage', value: 20, active: true, usageCount: 5 },
   { code: 'YENI10', type: 'percentage', value: 10, active: true, usageCount: 12 },
   { code: 'MAMA50', type: 'fixed', value: 50, active: true, usageCount: 2 },
 ];
@@ -94,8 +94,8 @@ const initialProducts: Product[] = [
       { name: '5 kg', priceModifier: 1100 },
       { name: '10 kg', priceModifier: 2200 }
     ],
-    metaTitle: 'N&D Prime Kuzu Etli Yetişkin Kedi Maması | Pawly',
-    metaDescription: 'Tahılsız kuzu etli N&D kedi maması en uygun fiyatlarla Pawly\'de! Kediniz için en sağlıklı besin değerleri.',
+    metaTitle: 'N&D Prime Kuzu Etli Yetişkin Kedi Maması | Zuzu Pet Co.',
+    metaDescription: 'Tahılsız kuzu etli N&D kedi maması en uygun fiyatlarla Zuzu Pet Co.\'da! Kediniz için en sağlıklı besin değerleri.',
     metaKeywords: 'n&d kedi maması, kuzu etli kedi maması, tahılsız kedi maması'
   },
   {
@@ -116,8 +116,8 @@ const initialProducts: Product[] = [
       { name: 'Tekli Paket', priceModifier: 0 },
       { name: '6\'lı Paket', priceModifier: 220 }
     ],
-    metaTitle: 'GimCat Superfood Yaş Kedi Maması 85gr | Pawly',
-    metaDescription: 'Kediniz için vitamin deposu GimCat yaş mama en iyi fiyatla burada. Tavuklu ve ıspanaklı.',
+    metaTitle: 'GimCat Superfood Yaş Kedi Maması 85gr | Zuzu Pet Co.',
+    metaDescription: 'Kediniz için vitamin deposu GimCat yaş mama en iyi fiyatla Zuzu Pet Co.\'da. Tavuklu ve ıspanaklı.',
     metaKeywords: 'gimcat yaş mama, kedi konservesi, yaş kedi maması'
   },
   {
@@ -138,8 +138,8 @@ const initialProducts: Product[] = [
       { name: '3 kg', priceModifier: 0 },
       { name: '12 kg', priceModifier: 1800 }
     ],
-    metaTitle: 'Pro Plan Yavru Köpek Maması | Pawly',
-    metaDescription: 'Pro Plan orta ırk yavru köpek maması ile köpeğinizin gelişimini destekleyin. Taze tavuk etli formül.',
+    metaTitle: 'Pro Plan Yavru Köpek Maması | Zuzu Pet Co.',
+    metaDescription: 'Pro Plan orta ırk yavru köpek maması ile köpeğinizin gelişimini destekleyin. Taze tavuk etli formül Zuzu Pet Co.\'da.',
     metaKeywords: 'pro plan köpek maması, yavru köpek maması, tavuklu köpek maması'
   },
   {
@@ -160,8 +160,8 @@ const initialProducts: Product[] = [
       { name: 'M', priceModifier: 50 },
       { name: 'L', priceModifier: 100 }
     ],
-    metaTitle: 'Deri Köpek Göğüs Tasması | Pawly',
-    metaDescription: 'Hakiki deriden üretilmiş sağlam göğüs tasması köpekleriniz için konforlu ve şık.',
+    metaTitle: 'Deri Köpek Göğüs Tasması | Zuzu Pet Co.',
+    metaDescription: 'Hakiki deriden üretilmiş sağlam göğüs tasması köpekleriniz için konforlu ve şık Zuzu Pet Co.\'da.',
     metaKeywords: 'köpek tasması, göğüs tasması, deri köpek tasması'
   },
   {
@@ -176,8 +176,8 @@ const initialProducts: Product[] = [
     stock: 25,
     rating: 4.4,
     reviews: [],
-    metaTitle: 'Doğal Bentonit Kedi Kumu 10L | Pawly',
-    metaDescription: 'Tozsuz ve süper topaklanan doğal kedi kumu en iyi fiyatla kapınızda.',
+    metaTitle: 'Doğal Bentonit Kedi Kumu 10L | Zuzu Pet Co.',
+    metaDescription: 'Tozsuz ve süper topaklanan doğal kedi kumu en iyi fiyatla Zuzu Pet Co.\'da.',
     metaKeywords: 'kedi kumu, bentonit kedi kumu, tozsuz kedi kumu'
   },
   {
@@ -193,8 +193,8 @@ const initialProducts: Product[] = [
     reviews: [
       { id: 'rev-6', customerName: 'Can P.', rating: 5, comment: 'Çok estetik ve kaliteli malzeme. Kuşum hemen alıştı.', date: '2026-06-11' }
     ],
-    metaTitle: 'Ahşap Kuş Kafesi Seti | Pawly',
-    metaDescription: 'Doğal ahşaptan üretilmiş sağlıklı muhabbet kuşu kafesi ve salıncak takımı.',
+    metaTitle: 'Ahşap Kuş Kafesi Seti | Zuzu Pet Co.',
+    metaDescription: 'Doğal ahşaptan üretilmiş sağlıklı muhabbet kuşu kafesi ve salıncak takımı Zuzu Pet Co.\'da.',
     metaKeywords: 'kuş kafesi, ahşap kafes, muhabbet kuşu kafesi'
   },
   {
@@ -209,8 +209,8 @@ const initialProducts: Product[] = [
     stock: 8,
     rating: 4.7,
     reviews: [],
-    metaTitle: 'Cam Akvaryum Başlangıç Seti 20L | Pawly',
-    metaDescription: 'Şelale filtreli ve led ışıklı başlangıç akvaryumu. Kurulumu kolay, şık tasarım.',
+    metaTitle: 'Cam Akvaryum Başlangıç Seti 20L | Zuzu Pet Co.',
+    metaDescription: 'Şelale filtreli ve led ışıklı başlangıç akvaryumu Zuzu Pet Co.\'da. Kurulumu kolay, şık tasarım.',
     metaKeywords: 'akvaryum seti, 20l akvaryum, balık akvaryumu'
   },
   {
@@ -224,8 +224,8 @@ const initialProducts: Product[] = [
     stock: 1, // Low stock alert
     rating: 4.3,
     reviews: [],
-    metaTitle: 'Tünelli Hamster Kafesi | Pawly',
-    metaDescription: 'Hamsterınız için kaydıraklı ve oyun parklı konforlu kafes seçeneği.',
+    metaTitle: 'Tünelli Hamster Kafesi | Zuzu Pet Co.',
+    metaDescription: 'Hamsterınız için kaydıraklı ve oyun parklı konforlu kafes seçeneği Zuzu Pet Co.\'da.',
     metaKeywords: 'hamster kafesi, guinea pig kafesi, kemirgen kafesi'
   }
 ];

@@ -1,8 +1,32 @@
 @import "tailwindcss";
 
+@theme {
+  --color-zinc-50: #faf8f6;
+  --color-zinc-100: #f2ebe3;
+  --color-zinc-150: #ebdcd0;
+  --color-zinc-200: #e8dfd5;
+  --color-zinc-300: #d5c8bb;
+  --color-zinc-400: #b5a290;
+  --color-zinc-500: #8c7664;
+  --color-zinc-600: #735d4c;
+  --color-zinc-700: #594537;
+  --color-zinc-800: #423227;
+  --color-zinc-900: #2b221a;
+  --color-zinc-950: #1f1812;
+
+  --color-black: #2b221a;
+  --color-white: #ffffff;
+
+  --color-accent-gold: #c29f72;
+  --color-accent-rose: #bd8a7e;
+
+  --font-heading: var(--font-playfair), serif;
+  --font-body: var(--font-nunito), sans-serif;
+}
+
 :root {
-  --background: #fafafa;
-  --foreground: #18181b;
+  --background: #faf8f6;
+  --foreground: #2b221a;
 }
 
 body {
@@ -18,16 +42,16 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: #f4f4f5;
+  background: #f2ebe3;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #d4d4d8;
+  background: #d5c8bb;
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #a1a1aa;
+  background: #b5a290;
 }
 
 /* Chrome DevTools plugin adjustments */
@@ -37,49 +61,49 @@ html {
 
 /* Custom inputs, cards and effects matching monochrome premium */
 .btn-primary {
-  background-color: #000000;
+  background-color: #2b221a;
   color: #ffffff;
   padding: 0.75rem 1.5rem;
   border-radius: 0.375rem;
-  font-weight: 500;
+  font-weight: 600;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
-  border: 1px solid #000000;
+  border: 1px solid #2b221a;
 }
 
 .btn-primary:hover {
-  background-color: #27272a;
-  border-color: #27272a;
+  background-color: #423227;
+  border-color: #423227;
 }
 
 .btn-secondary {
-  background-color: #ffffff;
-  color: #000000;
+  background-color: #faf8f6;
+  color: #2b221a;
   padding: 0.75rem 1.5rem;
   border-radius: 0.375rem;
-  font-weight: 500;
-  border: 1px solid #e4e4e7;
+  font-weight: 650;
+  border: 1px solid #e8dfd5;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
 }
 
 .btn-secondary:hover {
-  background-color: #f4f4f5;
-  border-color: #d4d4d8;
+  background-color: #f2ebe3;
+  border-color: #d5c8bb;
 }
 
 /* Card classes */
 .pet-card {
   background-color: #ffffff;
-  border: 1px solid #e4e4e7;
+  border: 1px solid #e8dfd5;
   border-radius: 0.5rem;
   padding: 1rem;
   transition: all 0.25s ease;
 }
 
 .pet-card:hover {
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
-  border-color: #a1a1aa;
+  box-shadow: 0 10px 25px -5px rgba(43, 34, 26, 0.08), 0 8px 10px -6px rgba(43, 34, 26, 0.08);
+  border-color: #b5a290;
 }
 
 /* Hide scrollbar for Chrome, Safari and Opera */
@@ -99,3 +123,4 @@ html {
     cursor: none !important;
   }
 }
+

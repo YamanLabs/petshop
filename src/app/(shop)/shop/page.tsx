@@ -359,7 +359,7 @@ function ShopCatalogContent() {
 
                     {/* Image */}
                     <Link href={`/product/${product.id}`} className="block relative aspect-square overflow-hidden cursor-pointer border-b border-zinc-150">
-                      <div className="w-full h-full bg-zinc-900 flex flex-col items-center justify-center gap-1.5 p-4 text-center group-hover:bg-zinc-805 transition-colors">
+                      <div className="w-full h-full bg-zinc-900 flex flex-col items-center justify-center gap-1.5 p-4 text-center group-hover:bg-zinc-800 transition-colors">
                         <PawPrint className="w-7 h-7 text-white/50" />
                         <span className="text-[9px] font-bold text-white/60 tracking-wider">GÖRSEL YOK</span>
                       </div>

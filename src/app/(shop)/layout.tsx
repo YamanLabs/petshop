@@ -25,6 +25,7 @@ import {
 } from 'lucide-react';
 import { Category, Product } from '../types';
 import { playSound } from '../utils/sound';
+import Logo from '../components/Logo';
 
 function ShopLayoutContent({ children }: { children: React.ReactNode }) {
   const { 
@@ -52,7 +53,7 @@ function ShopLayoutContent({ children }: { children: React.ReactNode }) {
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [chatMessage, setChatMessage] = useState('');
   const [chatLog, setChatLog] = useState<{ sender: 'user' | 'bot'; text: string; time: string }[]>([
-    { sender: 'bot', text: 'Merhaba! Pawly Destek hattına hoş geldiniz. Size nasıl yardımcı olabilirim?', time: 'Şimdi' }
+    { sender: 'bot', text: 'Merhaba! Zuzu Pet Co. Destek hattına hoş geldiniz. Size nasıl yardımcı olabilirim?', time: 'Şimdi' }
   ]);
   const [isTyping, setIsTyping] = useState(false);
 
@@ -175,12 +176,7 @@ function ShopLayoutContent({ children }: { children: React.ReactNode }) {
             
             {/* Logo */}
             <Link href="/" className="flex items-center gap-2 group cursor-pointer">
-              <div className="bg-black text-white p-2 rounded-lg group-hover:scale-105 transition-transform duration-200">
-                <PawPrint className="w-5 sm:w-6 h-5 sm:h-6" />
-              </div>
-              <span className="font-heading font-bold text-xl sm:text-2xl tracking-wider text-black">
-                PAWLY
-              </span>
+              <Logo className="h-10 sm:h-12 w-auto" />
             </Link>
 
             {/* Desktop Navbar Category Links */}
@@ -341,10 +337,7 @@ function ShopLayoutContent({ children }: { children: React.ReactNode }) {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div className="space-y-4">
               <div className="flex items-center gap-2">
-                <div className="bg-black text-white p-1.5 rounded-md">
-                  <PawPrint className="w-4 h-4" />
-                </div>
-                <span className="font-heading font-bold text-lg tracking-wider">PAWLY</span>
+                <Logo className="h-10 w-auto" />
               </div>
               <p className="text-sm text-zinc-500 leading-relaxed">
                 Premium evcil hayvan malzemeleri markası. Kaliteli mama, aksesuar ve konfor sunan tasarımlarla can dostlarınızın yanındayız.
@@ -402,7 +395,7 @@ function ShopLayoutContent({ children }: { children: React.ReactNode }) {
 
           <div className="border-t border-zinc-150 mt-12 pt-6 flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-xs text-zinc-400">
-              © {new Date().getFullYear()} Pawly A.Ş. Tüm Hakları Saklıdır.
+              © {new Date().getFullYear()} Zuzu Pet Co. Tüm Hakları Saklıdır.
             </p>
             <p className="text-xs text-zinc-400 hover:text-black cursor-pointer transition-colors flex items-center gap-1">
               <Link href="/admin" className="flex items-center gap-1">Yönetici Paneli Girişi <Settings className="w-3 h-3" /></Link>
@@ -676,7 +669,7 @@ function ShopLayoutContent({ children }: { children: React.ReactNode }) {
                   <span className="absolute bottom-0 right-0 w-2 h-2 bg-green-500 rounded-full border border-black" />
                 </div>
                 <div>
-                  <h4 className="text-sm font-bold leading-tight">Pawly Canlı Destek</h4>
+                  <h4 className="text-sm font-bold leading-tight">Zuzu Canlı Destek</h4>
                   <p className="text-[10px] text-zinc-300">Uzman Ekibimiz Çevrimiçi</p>
                 </div>
               </div>

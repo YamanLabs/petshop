@@ -37,42 +37,42 @@ export default function ShopHomePage() {
       text: "10 kg'lık kızım için 4 beden aldım. Rengi çok tatlı. Kargo da hemen ve sorunsuz geldi. Tavsiye...",
       rating: 5,
       userName: "Ecesu Altın",
-      productName: "Pawly Signature Köpek Yağmurluğu"
+      productName: "Zuzu Signature Köpek Yağmurluğu"
     },
     {
       id: 2,
       text: "Bedeni tam oldu kumaşın kalitesi inanılmaz indirimden aldığım için fiyat çok iyi...",
       rating: 5,
       userName: "BETÜL BİLİR DİDİN",
-      productName: "Pawly Flow Köpek Hoodie"
+      productName: "Zuzu Flow Köpek Hoodie"
     },
     {
       id: 3,
       text: "Bedenden kaynaklı düşük verdim kalite güzel ama diğer ürünle aynı beden almamıza...",
       rating: 3,
       userName: "BETÜL BİLİR DİDİN",
-      productName: "Pawly Cozy Köpek Polar Hırka"
+      productName: "Zuzu Cozy Köpek Polar Hırka"
     },
     {
       id: 4,
       text: "çok pratik ve tarz bir yağmurluk tüm arkadaşlarıma önerdim",
       rating: 5,
       userName: "nisan",
-      productName: "Pawly Active Köpek Tasması"
+      productName: "Zuzu Active Köpek Tasması"
     },
     {
       id: 5,
       text: "Kumaşı kalınlığı çok iyi tam kışlık, tüyleri hiç rahatsız etmiyor.",
       rating: 5,
       userName: "Hakan U.",
-      productName: "Pawly Flow Köpek Hoodie"
+      productName: "Zuzu Flow Köpek Hoodie"
     },
     {
       id: 6,
       text: "Köpeğim giyince çok rahat hareket ediyor, kalıpları gayet düzgün.",
       rating: 4,
       userName: "Ayşe T.",
-      productName: "Pawly Cozy Köpek Polar Hırka"
+      productName: "Zuzu Cozy Köpek Polar Hırka"
     }
   ];
 
@@ -225,7 +225,7 @@ export default function ShopHomePage() {
 
                 {/* Product Image Link */}
                 <Link href={`/product/${product.id}`} className="block relative aspect-square overflow-hidden cursor-pointer border-b border-zinc-150">
-                  <div className="w-full h-full bg-zinc-900 flex flex-col items-center justify-center gap-1.5 p-4 text-center group-hover:bg-zinc-805 transition-colors">
+                  <div className="w-full h-full bg-zinc-900 flex flex-col items-center justify-center gap-1.5 p-4 text-center group-hover:bg-zinc-800 transition-colors">
                     <PawPrint className="w-7 h-7 text-white/50" />
                     <span className="text-[9px] font-bold text-white/60 tracking-wider">GÖRSEL YOK</span>
                   </div>

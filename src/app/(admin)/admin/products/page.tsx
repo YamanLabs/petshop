@@ -128,7 +128,7 @@ function AdminProductsContent() {
       image,
       description,
       variations: variations.length > 0 ? variations : undefined,
-      metaTitle: metaTitle || `${title} | Pawly`,
+      metaTitle: metaTitle || `${title} | Zuzu Pet Co.`,
       metaDescription: metaDescription || description.slice(0, 150),
       metaKeywords: metaKeywords || `${brand}, ${title.toLowerCase()}`
     };
@@ -373,7 +373,7 @@ function AdminProductsContent() {
                         <label className="text-xs font-bold text-zinc-500">Meta Başlık (Title Tag)</label>
                         <input
                           type="text"
-                          placeholder="Örn: N&D Tahılsız Kedi Maması Fiyatı - Pawly"
+                          placeholder="Örn: N&D Tahılsız Kedi Maması Fiyatı - Zuzu Pet Co."
                           value={metaTitle}
                           onChange={(e) => setMetaTitle(e.target.value)}
                           className="w-full bg-zinc-50 border border-zinc-200 rounded-md p-2.5 text-xs focus:outline-hidden focus:border-black font-semibold"

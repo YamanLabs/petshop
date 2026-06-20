@@ -16,6 +16,7 @@ import {
   PawPrint,
   Settings
 } from 'lucide-react';
+import Logo from '../components/Logo';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -41,8 +42,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       {/* Mobile Header */}
       <header className="md:hidden bg-black text-white h-16 px-4 flex items-center justify-between border-b border-zinc-800 sticky top-0 z-30 shadow-md">
         <Link href="/admin" className="flex items-center gap-2">
-          <PawPrint className="w-5 h-5 text-white" />
-          <span className="font-heading font-bold text-base tracking-wider">PAWLY YÖNETİM</span>
+          <Logo className="h-8 w-auto" light />
+          <span className="font-heading font-bold text-xs tracking-wider uppercase ml-1 opacity-80 text-white">YÖNETİM</span>
         </Link>
         <button 
           onClick={() => setIsMobileOpen(!isMobileOpen)}
@@ -60,11 +61,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <div className="flex flex-col">
           {/* Logo Brand Header */}
           <div className="h-20 px-6 border-b border-zinc-900 flex items-center justify-between">
-            <Link href="/admin" className="flex items-center gap-2 group">
-              <div className="bg-white text-black p-1.5 rounded-md">
-                <PawPrint className="w-4 h-4" />
-              </div>
-              <span className="font-heading font-extrabold text-base tracking-widest text-white">PAWLY PANEL</span>
+            <Link href="/admin" className="flex flex-col items-start gap-1 group">
+              <Logo className="h-9 w-auto" light />
+              <span className="font-heading font-bold text-[9px] tracking-widest text-white/50 uppercase select-none pl-1">Yönetim Paneli</span>
             </Link>
             <button 
               onClick={() => setIsMobileOpen(false)}
