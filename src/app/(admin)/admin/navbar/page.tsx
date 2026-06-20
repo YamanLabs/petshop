@@ -20,7 +20,8 @@ export default function AdminNavbarPage() {
     categories, 
     addNavbarLink, 
     updateNavbarLink, 
-    deleteNavbarLink 
+    deleteNavbarLink,
+    requireActionAuth
   } = useApp();
 
   // Form States
@@ -99,23 +100,25 @@ export default function AdminNavbarPage() {
       return;
     }
 
-    const payload = {
-      title: title.trim(),
-      url: url.trim(),
-      parentId: parentId || null,
-      sortOrder: Number(sortOrder)
-    };
+    requireActionAuth(() => {
+      const payload = {
+        title: title.trim(),
+        url: url.trim(),
+        parentId: parentId || null,
+        sortOrder: Number(sortOrder)
+      };
 
-    if (formMode === 'add') {
-      addNavbarLink(payload);
-    } else if (formMode === 'edit') {
-      updateNavbarLink({
-        id: editingId,
-        ...payload
-      });
-    }
+      if (formMode === 'add') {
+        addNavbarLink(payload);
+      } else if (formMode === 'edit') {
+        updateNavbarLink({
+          id: editingId,
+          ...payload
+        });
+      }
 
-    handleCloseForm();
+      handleCloseForm();
+    });
   };
 
   const handleSort = (link: NavbarLink, direction: 'up' | 'down') => {
@@ -128,9 +131,11 @@ export default function AdminNavbarPage() {
 
     const swapLink = siblingLinks[swapWithIndex];
 
-    // Swap sortOrder
-    updateNavbarLink({ ...link, sortOrder: swapLink.sortOrder });
-    updateNavbarLink({ ...swapLink, sortOrder: link.sortOrder });
+    requireActionAuth(() => {
+      // Swap sortOrder
+      updateNavbarLink({ ...link, sortOrder: swapLink.sortOrder });
+      updateNavbarLink({ ...swapLink, sortOrder: link.sortOrder });
+    });
   };
 
   return (
@@ -203,7 +208,9 @@ export default function AdminNavbarPage() {
                         <button
                           onClick={() => {
                             if (confirm(`"${link.title}" linkini ve altındaki tüm alt menüleri silmek istediğinize emin misiniz?`)) {
-                              deleteNavbarLink(link.id);
+                              requireActionAuth(() => {
+                                deleteNavbarLink(link.id);
+                              });
                             }
                           }}
                           className="p-1 rounded-sm border border-zinc-150 bg-white text-zinc-500 hover:text-red-650 cursor-pointer"
@@ -251,7 +258,9 @@ export default function AdminNavbarPage() {
                               <button
                                 onClick={() => {
                                   if (confirm(`"${sub.title}" alt linkini silmek istediğinize emin misiniz?`)) {
-                                    deleteNavbarLink(sub.id);
+                                    requireActionAuth(() => {
+                                      deleteNavbarLink(sub.id);
+                                    });
                                   }
                                 }}
                                 className="p-1 rounded-sm border border-zinc-150 bg-white text-zinc-500 hover:text-red-650 cursor-pointer"

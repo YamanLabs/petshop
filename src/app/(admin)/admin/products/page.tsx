@@ -21,7 +21,7 @@ import { optimizeAndUploadImage } from '../../../utils/supabase';
 function AdminProductsContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { products, categories, brands, addProduct, updateProduct, deleteProduct } = useApp();
+  const { products, categories, brands, addProduct, updateProduct, deleteProduct, requireActionAuth } = useApp();
 
   // Search state in products table
   const [tableSearch, setTableSearch] = useState('');
@@ -140,36 +140,38 @@ function AdminProductsContent() {
     e.preventDefault();
     if (!title || !brand || !categoryId || !price || !stock || !image) return;
 
-    const baseData = {
-      title,
-      brand,
-      categoryId,
-      price: Number(price),
-      originalPrice: originalPrice ? Number(originalPrice) : undefined,
-      stock: Number(stock),
-      image,
-      description,
-      variations: variations.length > 0 ? variations : undefined,
-      metaTitle: metaTitle || `${title} | Zuzu Pet Co.`,
-      metaDescription: metaDescription || description.slice(0, 150),
-      metaKeywords: metaKeywords || `${brand}, ${title.toLowerCase()}`
-    };
+    requireActionAuth(() => {
+      const baseData = {
+        title,
+        brand,
+        categoryId,
+        price: Number(price),
+        originalPrice: originalPrice ? Number(originalPrice) : undefined,
+        stock: Number(stock),
+        image,
+        description,
+        variations: variations.length > 0 ? variations : undefined,
+        metaTitle: metaTitle || `${title} | Zuzu Pet Co.`,
+        metaDescription: metaDescription || description.slice(0, 150),
+        metaKeywords: metaKeywords || `${brand}, ${title.toLowerCase()}`
+      };
 
-    if (editingId) {
-      // Edit
-      const existingProduct = products.find(p => p.id === editingId);
-      if (existingProduct) {
-        updateProduct({
-          ...existingProduct,
-          ...baseData
-        });
+      if (editingId) {
+        // Edit
+        const existingProduct = products.find(p => p.id === editingId);
+        if (existingProduct) {
+          updateProduct({
+            ...existingProduct,
+            ...baseData
+          });
+        }
+      } else {
+        // Add
+        addProduct(baseData);
       }
-    } else {
-      // Add
-      addProduct(baseData);
-    }
 
-    handleCloseForm();
+      handleCloseForm();
+    });
   };
 
   // Filter products by search text in data table
@@ -576,7 +578,9 @@ function AdminProductsContent() {
                         <button
                           onClick={() => {
                             if (confirm(`"${p.title}" ürününü silmek istediğinize emin misiniz?`)) {
-                              deleteProduct(p.id);
+                              requireActionAuth(() => {
+                                deleteProduct(p.id);
+                              });
                             }
                           }}
                           className="border border-zinc-200 hover:border-red-600 hover:bg-red-50 text-zinc-400 hover:text-red-600 p-1.5 rounded-md transition-colors cursor-pointer inline-flex items-center"

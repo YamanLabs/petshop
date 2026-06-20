@@ -4,6 +4,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Product, Category, Order, Coupon, Review, ProductVariation, CustomerReview, NavbarLink, Brand, ProductReview } from '../types';
 import { playSound } from '../utils/sound';
 import { supabase } from '../utils/supabase';
+import ActionAuthModal from '../components/ActionAuthModal';
 
 interface CartItem {
   product: Product;
@@ -61,6 +62,7 @@ interface AppContextType {
     total: number;
   }) => string; // returns tracking code
   updateOrderStatus: (orderId: string, status: Order['status']) => void;
+  requireActionAuth: (onSuccess: () => void) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -1417,6 +1419,31 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   };
 
+  // Action Auth States
+  const [isActionAuthModalOpen, setIsActionAuthModalOpen] = useState(false);
+  const [pendingAction, setPendingAction] = useState<(() => void) | null>(null);
+
+  const requireActionAuth = (onSuccess: () => void) => {
+    const savedTime = sessionStorage.getItem('last_action_auth_time');
+    const lastAuth = savedTime ? Number(savedTime) : 0;
+    
+    if (Date.now() - lastAuth < 10 * 60 * 1000) {
+      onSuccess();
+    } else {
+      setPendingAction(() => onSuccess);
+      setIsActionAuthModalOpen(true);
+    }
+  };
+
+  const handleActionAuthSuccess = () => {
+    sessionStorage.setItem('last_action_auth_time', Date.now().toString());
+    setIsActionAuthModalOpen(false);
+    if (pendingAction) {
+      pendingAction();
+      setPendingAction(null);
+    }
+  };
+
   return (
     <AppContext.Provider
       value={{
@@ -1458,10 +1485,17 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         addProductReview,
         deleteProductReview,
         addOrder,
-        updateOrderStatus
+        updateOrderStatus,
+        requireActionAuth
       }}
     >
       {children}
+      {isActionAuthModalOpen && (
+        <ActionAuthModal
+          onSuccess={handleActionAuthSuccess}
+          onClose={() => setIsActionAuthModalOpen(false)}
+        />
+      )}
     </AppContext.Provider>
   );
 };

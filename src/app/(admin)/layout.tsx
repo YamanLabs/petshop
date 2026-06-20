@@ -44,6 +44,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   if (!isMounted) return null;
 
+  if (pathname === '/admin/login') {
+    return <>{children}</>;
+  }
+
   return (
     <div className="min-h-screen bg-zinc-150 flex flex-col md:flex-row text-zinc-900 font-sans">
       {/* Mobile Header */}
@@ -104,14 +108,31 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </div>
 
         {/* Footer actions inside sidebar */}
-        <div className="p-4 border-t border-zinc-900 space-y-1">
+        <div className="p-4 border-t border-zinc-900 space-y-2">
           <Link
             href="/"
-            className="flex items-center gap-3 px-4 py-3 rounded-md text-xs font-bold text-zinc-400 hover:text-white hover:bg-zinc-900 transition-all cursor-pointer"
+            className="flex items-center gap-3 px-4 py-2.5 rounded-md text-xs font-bold text-zinc-400 hover:text-white hover:bg-zinc-900 transition-all cursor-pointer"
           >
-            <LogOut className="w-4.5 h-4.5" />
+            <PawPrint className="w-4.5 h-4.5" />
             <span>Mağazayı Görüntüle</span>
           </Link>
+          <button
+            onClick={async () => {
+              try {
+                const res = await fetch('/api/admin/logout', { method: 'POST' });
+                if (res.ok) {
+                  router.push('/admin/login');
+                  router.refresh();
+                }
+              } catch (err) {
+                console.error("Çıkış yapılırken hata oluştu:", err);
+              }
+            }}
+            className="w-full flex items-center gap-3 px-4 py-2.5 rounded-md text-xs font-bold text-red-400 hover:text-red-300 hover:bg-zinc-900/60 transition-all cursor-pointer border-none bg-transparent text-left"
+          >
+            <LogOut className="w-4.5 h-4.5" />
+            <span>Çıkış Yap</span>
+          </button>
         </div>
       </aside>
 

@@ -148,6 +148,36 @@ class SoundManager {
       console.warn("AudioContext block:", e);
     }
   }
+
+  // 6. Low double buzz sound for validation errors / invalid inputs
+  playError() {
+    try {
+      if (typeof window === 'undefined') return;
+      const ctx = this.initCtx();
+      const playNote = (freq: number, start: number, duration: number) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(freq, start);
+        
+        gain.gain.setValueAtTime(0.04, start);
+        gain.gain.exponentialRampToValueAtTime(0.001, start + duration);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        osc.start(start);
+        osc.stop(start + duration);
+      };
+
+      const now = ctx.currentTime;
+      playNote(130, now, 0.12);
+      playNote(130, now + 0.15, 0.12);
+    } catch (e) {
+      console.warn("AudioContext block:", e);
+    }
+  }
 }
 
 export const playSound = new SoundManager();

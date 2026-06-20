@@ -18,7 +18,7 @@ import { Order } from '../../../types';
 import Link from 'next/link';
 
 export default function AdminOrdersPage() {
-  const { orders, updateOrderStatus } = useApp();
+  const { orders, updateOrderStatus, requireActionAuth } = useApp();
 
   // Search & Filter States
   const [searchTerm, setSearchTerm] = useState('');
@@ -128,7 +128,7 @@ export default function AdminOrdersPage() {
                       <td className="py-4 pl-3 text-right space-x-1.5 whitespace-nowrap">
                         {order.status === 'Hazırlanıyor' && (
                           <button
-                            onClick={() => updateOrderStatus(order.id, 'Kargoya Verildi')}
+                            onClick={() => requireActionAuth(() => updateOrderStatus(order.id, 'Kargoya Verildi'))}
                             className="bg-blue-600 hover:bg-blue-700 text-white text-[10px] font-bold py-1.5 px-3 rounded-sm transition-colors cursor-pointer"
                           >
                             Kargola
@@ -136,7 +136,7 @@ export default function AdminOrdersPage() {
                         )}
                         {order.status === 'Kargoya Verildi' && (
                           <button
-                            onClick={() => updateOrderStatus(order.id, 'Teslim Edildi')}
+                            onClick={() => requireActionAuth(() => updateOrderStatus(order.id, 'Teslim Edildi'))}
                             className="bg-green-600 hover:bg-green-700 text-white text-[10px] font-bold py-1.5 px-3 rounded-sm transition-colors cursor-pointer"
                           >
                             Teslim Et

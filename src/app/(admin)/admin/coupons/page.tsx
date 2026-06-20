@@ -15,7 +15,7 @@ import {
 import { Coupon } from '../../../types';
 
 export default function AdminCouponsPage() {
-  const { coupons, addCoupon, updateCoupon, deleteCoupon } = useApp();
+  const { coupons, addCoupon, updateCoupon, deleteCoupon, requireActionAuth } = useApp();
 
   // Add Coupon form states
   const [code, setCode] = useState('');
@@ -36,23 +36,27 @@ export default function AdminCouponsPage() {
       return;
     }
 
-    addCoupon({
-      code: formattedCode,
-      type,
-      value: Number(value),
-      active: true,
-      usageCount: 0
-    });
+    requireActionAuth(() => {
+      addCoupon({
+        code: formattedCode,
+        type,
+        value: Number(value),
+        active: true,
+        usageCount: 0
+      });
 
-    setCode('');
-    setValue('');
-    setIsAdding(false);
+      setCode('');
+      setValue('');
+      setIsAdding(false);
+    });
   };
 
   const handleToggleActive = (coupon: Coupon) => {
-    updateCoupon({
-      ...coupon,
-      active: !coupon.active
+    requireActionAuth(() => {
+      updateCoupon({
+        ...coupon,
+        active: !coupon.active
+      });
     });
   };
 
@@ -127,14 +131,16 @@ export default function AdminCouponsPage() {
                         {coupon.active ? <ToggleRight className="w-5 h-5" /> : <ToggleLeft className="w-5 h-5 text-zinc-300" />}
                       </button>
                       <button
-                        onClick={() => {
-                          if (confirm(`"${coupon.code}" kuponunu silmek istediğinize emin misiniz?`)) {
-                            deleteCoupon(coupon.code);
-                          }
-                        }}
-                        className="text-zinc-400 hover:text-red-650 cursor-pointer inline-flex items-center"
-                        title="Sil"
-                      >
+                          onClick={() => {
+                            if (confirm(`"${coupon.code}" kuponunu silmek istediğinize emin misiniz?`)) {
+                              requireActionAuth(() => {
+                                deleteCoupon(coupon.code);
+                              });
+                            }
+                          }}
+                          className="text-zinc-400 hover:text-red-650 cursor-pointer inline-flex items-center"
+                          title="Sil"
+                        >
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </td>

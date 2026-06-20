@@ -15,7 +15,7 @@ import { Brand } from '../../../types';
 import { optimizeAndUploadImage } from '../../../utils/supabase';
 
 export default function AdminBrandsPage() {
-  const { brands, addBrand, updateBrand, deleteBrand } = useApp();
+  const { brands, addBrand, updateBrand, deleteBrand, requireActionAuth } = useApp();
 
   // Form States
   const [formMode, setFormMode] = useState<'add' | 'edit' | null>(null);
@@ -95,22 +95,24 @@ export default function AdminBrandsPage() {
       return;
     }
 
-    const payload = {
-      name: name.trim(),
-      slug: slug.trim(),
-      logoUrl: logoUrl.trim() || null
-    };
+    requireActionAuth(() => {
+      const payload = {
+        name: name.trim(),
+        slug: slug.trim(),
+        logoUrl: logoUrl.trim() || null
+      };
 
-    if (formMode === 'add') {
-      addBrand(payload);
-    } else if (formMode === 'edit') {
-      updateBrand({
-        id: editingId,
-        ...payload
-      });
-    }
+      if (formMode === 'add') {
+        addBrand(payload);
+      } else if (formMode === 'edit') {
+        updateBrand({
+          id: editingId,
+          ...payload
+        });
+      }
 
-    handleCloseForm();
+      handleCloseForm();
+    });
   };
 
   return (
@@ -173,10 +175,12 @@ export default function AdminBrandsPage() {
                       >
                         <Edit2 className="w-4 h-4" />
                       </button>
-                      <button
+                       <button
                         onClick={() => {
                           if (confirm(`"${brand.name}" markasını silmek istediğinize emin misiniz?`)) {
-                            deleteBrand(brand.id);
+                            requireActionAuth(() => {
+                              deleteBrand(brand.id);
+                            });
                           }
                         }}
                         className="text-zinc-400 hover:text-red-650 cursor-pointer inline-flex items-center"

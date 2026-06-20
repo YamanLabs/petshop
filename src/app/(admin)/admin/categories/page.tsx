@@ -16,7 +16,7 @@ import {
 import { Category } from '../../../types';
 
 export default function AdminCategoriesPage() {
-  const { categories, addCategory, updateCategory, deleteCategory } = useApp();
+  const { categories, addCategory, updateCategory, deleteCategory, requireActionAuth } = useApp();
 
   // Active form overlays
   const [isAdding, setIsAdding] = useState(false);
@@ -49,14 +49,16 @@ export default function AdminCategoriesPage() {
     e.preventDefault();
     if (!newCatName.trim()) return;
 
-    addCategory({
-      name: newCatName.trim(),
-      parentId: addingParentId
-    });
+    requireActionAuth(() => {
+      addCategory({
+        name: newCatName.trim(),
+        parentId: addingParentId
+      });
 
-    setIsAdding(false);
-    setNewCatName('');
-    setAddingParentId(null);
+      setIsAdding(false);
+      setNewCatName('');
+      setAddingParentId(null);
+    });
   };
 
   const handleStartEdit = (cat: Category) => {
@@ -66,12 +68,14 @@ export default function AdminCategoriesPage() {
 
   const handleUpdateCategory = (cat: Category) => {
     if (!editingName.trim()) return;
-    updateCategory({
-      ...cat,
-      name: editingName.trim()
+    requireActionAuth(() => {
+      updateCategory({
+        ...cat,
+        name: editingName.trim()
+      });
+      setEditingId(null);
+      setEditingName('');
     });
-    setEditingId(null);
-    setEditingName('');
   };
 
   // Delete category with confirmation
@@ -82,7 +86,9 @@ export default function AdminCategoriesPage() {
       msg = `"${name}" kategorisi alt kategoriler barındırıyor! Kategoriyi silerseniz alt kategoriler de silinecektir. Emin misiniz?`;
     }
     if (confirm(msg)) {
-      deleteCategory(catId);
+      requireActionAuth(() => {
+        deleteCategory(catId);
+      });
     }
   };
 

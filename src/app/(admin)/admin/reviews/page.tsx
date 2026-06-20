@@ -16,7 +16,7 @@ import { CustomerReview } from '../../../types';
 import { optimizeAndUploadImage } from '../../../utils/supabase';
 
 export default function AdminReviewsPage() {
-  const { customerReviews, addCustomerReview, updateCustomerReview, deleteCustomerReview } = useApp();
+  const { customerReviews, addCustomerReview, updateCustomerReview, deleteCustomerReview, requireActionAuth } = useApp();
 
   // Form states
   const [formMode, setFormMode] = useState<'add' | 'edit' | null>(null);
@@ -97,24 +97,26 @@ export default function AdminReviewsPage() {
       return;
     }
 
-    const payload = {
-      userName: userName.trim(),
-      productName: productName.trim(),
-      rating,
-      text: text.trim(),
-      imageUrl: imageUrl.trim() || null
-    };
+    requireActionAuth(() => {
+      const payload = {
+        userName: userName.trim(),
+        productName: productName.trim(),
+        rating,
+        text: text.trim(),
+        imageUrl: imageUrl.trim() || null
+      };
 
-    if (formMode === 'add') {
-      addCustomerReview(payload);
-    } else if (formMode === 'edit') {
-      updateCustomerReview({
-        id: editingId,
-        ...payload
-      });
-    }
+      if (formMode === 'add') {
+        addCustomerReview(payload);
+      } else if (formMode === 'edit') {
+        updateCustomerReview({
+          id: editingId,
+          ...payload
+        });
+      }
 
-    handleCloseForm();
+      handleCloseForm();
+    });
   };
 
   return (
@@ -210,7 +212,9 @@ export default function AdminReviewsPage() {
                         <button
                           onClick={() => {
                             if (confirm(`"${review.userName}" isimli kullanıcının yorumunu silmek istediğinize emin misiniz?`)) {
-                              deleteCustomerReview(review.id);
+                              requireActionAuth(() => {
+                                deleteCustomerReview(review.id);
+                              });
                             }
                           }}
                           className="text-zinc-400 hover:text-red-650 cursor-pointer inline-flex items-center"
