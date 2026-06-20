@@ -99,7 +99,7 @@ export default function ProductDetailPage() {
               <img 
                 src={product.image} 
                 alt={product.title} 
-                className="w-full h-full object-contain p-4"
+                className="w-full h-full object-cover"
               />
             ) : (
               <div className="w-full h-full bg-zinc-900 flex flex-col items-center justify-center gap-2 p-8 text-center min-h-[300px] sm:min-h-[400px]">

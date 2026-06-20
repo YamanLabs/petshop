@@ -316,8 +316,8 @@ function AdminProductsContent() {
                   <label className="text-xs font-bold text-zinc-500">Ürün Görseli</label>
                   
                   {image && (
-                    <div className="relative w-24 h-24 rounded-md border border-zinc-200 overflow-hidden bg-zinc-50 p-1">
-                      <img src={image} alt="Ürün Önizleme" className="w-full h-full object-contain" />
+                    <div className="relative w-24 h-24 rounded-md border border-zinc-200 overflow-hidden bg-zinc-50">
+                      <img src={image} alt="Ürün Önizleme" className="w-full h-full object-cover" />
                       <button
                         type="button"
                         onClick={() => setImage('')}
@@ -533,7 +533,7 @@ function AdminProductsContent() {
                           <img 
                             src={p.image} 
                             alt={p.title} 
-                            className="w-10 h-10 object-contain rounded-md border border-zinc-200 bg-zinc-50"
+                            className="w-10 h-10 object-cover rounded-md border border-zinc-200 bg-zinc-50"
                           />
                         ) : (
                           <div className="w-10 h-10 bg-zinc-900 rounded-md border border-zinc-200 flex flex-col items-center justify-center flex-shrink-0 gap-0.5 select-none">

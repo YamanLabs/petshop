@@ -183,7 +183,7 @@ export default function ShopHomePage() {
                     <img 
                       src={product.image} 
                       alt={product.title} 
-                      className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-105"
+                      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                     />
                   ) : (
                     <div className="w-full h-full bg-zinc-900 flex flex-col items-center justify-center gap-1.5 p-4 text-center group-hover:bg-zinc-800 transition-colors">
