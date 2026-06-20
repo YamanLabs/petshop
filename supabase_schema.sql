@@ -172,7 +172,12 @@ VALUES
   ('admin_action_password', 'k4P9vR1sT7uW0xY3zA6bC9dE2fH5i8jF'),
   ('customer_reviews_rating', '4.97'),
   ('customer_reviews_count', '875'),
-  ('coupon_banner_visible', 'true')
+  ('coupon_banner_visible', 'true'),
+  ('contact_address', 'İnönü mah. Hürriyet cad. No 236/A bornova, izmir'),
+  ('contact_phone', '+90 530 470 05 43'),
+  ('contact_email', 'destek@zuzupet.co'),
+  ('contact_hours', 'Hafta İçi & Hafta Sonu: 09:00 - 20:00'),
+  ('contact_map_iframe', 'https://maps.google.com/maps?q=Inonu%20Mahallesi%20Hurriyet%20Caddesi%20No%20236/A%20Bornova%20Izmir&t=&z=15&ie=UTF8&iwloc=&output=embed')
 ON CONFLICT (key) 
 DO UPDATE SET 
   value = EXCLUDED.value,
