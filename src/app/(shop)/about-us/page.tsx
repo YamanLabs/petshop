@@ -18,9 +18,6 @@ export default function AboutUsPage() {
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-12 animate-fadeIn">
       {/* Editorial Title */}
       <div className="text-center space-y-4">
-        <div className="inline-flex items-center gap-1 bg-zinc-100 text-zinc-800 text-[10px] font-extrabold uppercase tracking-widest px-3 py-1 rounded-full">
-          <Sparkles className="w-3.5 h-3.5" /> Biz Kimiz?
-        </div>
         <h1 className="text-4xl sm:text-5xl font-heading font-extrabold text-black tracking-tight leading-[1.1]">
           {title}
         </h1>
