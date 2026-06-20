@@ -7,11 +7,11 @@ import { useApp } from '../../context/AppContext';
 export default function LocationPage() {
   const { settings } = useApp();
 
-  const address = settings.contact_address || 'Caferağa Mh. Şair Nefi Sk. No:18 D:1 Kadıköy / İstanbul';
-  const phone = settings.contact_phone || '+90 216 123 45 67';
+  const address = settings.contact_address || 'İnönü Mah. Hürriyet Cad. No:236/A Bornova / İzmir';
+  const phone = settings.contact_phone || '+90 530 470 05 43';
   const email = settings.contact_email || 'destek@zuzupet.co';
   const hours = settings.contact_hours || 'Hafta İçi & Hafta Sonu: 09:00 - 20:00';
-  const mapIframe = settings.contact_map_iframe || 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3011.6502096335345!2d29.023253276602323!3d40.98912232049755!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14cab8677eb931e9%3A0xe107d39366dfd90a!2zQ2FmZXJhxJ9hLCDFnsFhaXIgTmVmaSBTay4sIDM0NzEwIEthZMSxa8O2eS_EsHN0YW5idWw!5e0!3m2!1str!2str!4v1700000000000!5m2!1str!2str';
+  const mapIframe = settings.contact_map_iframe || 'https://maps.google.com/maps?q=38.4631,27.2163&z=15&output=embed';
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-12 animate-fadeIn">
@@ -24,7 +24,7 @@ export default function LocationPage() {
           Bizi Ziyaret Edin
         </h1>
         <p className="text-sm text-zinc-500 leading-relaxed">
-          Kadıköy'deki konsept mağazamızda can dostunuzla birlikte en premium ürünleri inceleyebilirsiniz.
+          Bornova'daki konsept mağazamızda can dostunuzla birlikte en premium ürünleri inceleyebilirsiniz.
         </p>
       </div>
 

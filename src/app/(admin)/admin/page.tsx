@@ -60,11 +60,11 @@ export default function AdminDashboardPage() {
       setAboutUsQuoteTitle(settings.about_us_quote_title || '"Dostunuz İçin En İyisi"');
       setAboutUsQuoteContent(settings.about_us_quote_content || 'Satışa sunduğumuz her ürün uzman ekibimiz tarafından test edilerek ve veteriner onayından geçirilerek seçilir.');
 
-      setContactAddress(settings.contact_address || 'Caferağa Mh. Şair Nefi Sk. No:18 D:1 Kadıköy / İstanbul');
-      setContactPhone(settings.contact_phone || '+90 216 123 45 67');
+      setContactAddress(settings.contact_address || 'İnönü Mah. Hürriyet Cad. No:236/A Bornova / İzmir');
+      setContactPhone(settings.contact_phone || '+90 530 470 05 43');
       setContactEmail(settings.contact_email || 'destek@zuzupet.co');
       setContactHours(settings.contact_hours || 'Hafta İçi & Hafta Sonu: 09:00 - 20:00');
-      setContactMapIframe(settings.contact_map_iframe || 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3011.6502096335345!2d29.023253276602323!3d40.98912232049755!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14cab8677eb931e9%3A0xe107d39366dfd90a!2zQ2FmZXJhxJ9hLCDFnsFhaXIgTmVmaSBTay4sIDM0NzEwIEthZMSxa8O2eS_EsHN0YW5idWw!5e0!3m2!1str!2str!4v1700000000000!5m2!1str!2str');
+      setContactMapIframe(settings.contact_map_iframe || 'https://maps.google.com/maps?q=38.4631,27.2163&z=15&output=embed');
     }
   }, [settings]);
 
