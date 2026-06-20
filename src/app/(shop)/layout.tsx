@@ -38,7 +38,8 @@ function ShopLayoutContent({ children }: { children: React.ReactNode }) {
     removeFromWishlist,
     coupons,
     isMounted,
-    navbarLinks
+    navbarLinks,
+    settings
   } = useApp();
 
   const router = useRouter();
@@ -333,6 +334,24 @@ function ShopLayoutContent({ children }: { children: React.ReactNode }) {
               <p className="text-sm text-zinc-500 leading-relaxed">
                 Premium evcil hayvan malzemeleri markası. Kaliteli mama, aksesuar ve konfor sunan tasarımlarla can dostlarınızın yanındayız.
               </p>
+              <div className="space-y-1.5 pt-3 border-t border-zinc-100 text-xs text-zinc-500">
+                <p className="flex items-center gap-1.5">
+                  <span className="font-bold text-zinc-700">Telefon:</span>
+                  <a href={`tel:${(settings?.contact_phone || '+90 530 470 05 43').replace(/\s+/g, '')}`} className="hover:text-black font-semibold">
+                    {settings?.contact_phone || '+90 530 470 05 43'}
+                  </a>
+                </p>
+                <p className="flex items-center gap-1.5">
+                  <span className="font-bold text-zinc-700">E-Posta:</span>
+                  <a href={`mailto:${settings?.contact_email || 'destek@zuzupet.co'}`} className="hover:text-black font-semibold">
+                    {settings?.contact_email || 'destek@zuzupet.co'}
+                  </a>
+                </p>
+                <p className="flex items-center gap-1.5">
+                  <span className="font-bold text-zinc-700">Çalışma:</span>
+                  <span>{settings?.contact_hours || 'Hafta İçi & Hafta Sonu: 09:00 - 20:00'}</span>
+                </p>
+              </div>
             </div>
             
             <div>
