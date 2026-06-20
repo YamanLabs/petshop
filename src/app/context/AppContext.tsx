@@ -402,7 +402,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         try {
           const { data, error } = await supabase.from('products').select('*');
           if (error) throw error;
-          if (data && data.length > 0) {
+          if (data) {
             loadedProducts = data.map((dbProduct: any) => ({
               id: dbProduct.id,
               title: dbProduct.title,
@@ -420,28 +420,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
               metaDescription: dbProduct.meta_description || '',
               metaKeywords: dbProduct.meta_keywords || ''
             }));
-          } else {
-            console.log("Supabase products table is empty. Seeding initial products...");
-            const dbSeed = initialProducts.map(p => ({
-              id: p.id,
-              title: p.title,
-              description: p.description,
-              price: p.price,
-              original_price: p.originalPrice || null,
-              image: p.image,
-              category_id: p.categoryId,
-              brand: p.brand,
-              stock: p.stock,
-              rating: p.rating,
-              reviews: p.reviews,
-              variations: p.variations || [],
-              meta_title: p.metaTitle || null,
-              meta_description: p.metaDescription || null,
-              meta_keywords: p.metaKeywords || null
-            }));
-            const { error: seedError } = await supabase.from('products').insert(dbSeed);
-            if (seedError) console.error("Failed to seed Supabase products:", seedError);
-            loadedProducts = initialProducts;
           }
         } catch (err) {
           console.error("Failed to load products from Supabase, falling back to LocalStorage:", err);
@@ -459,7 +437,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         try {
           const { data, error } = await supabase.from('coupons').select('*');
           if (error) throw error;
-          if (data && data.length > 0) {
+          if (data) {
             loadedCoupons = data.map((dbCoupon: any) => ({
               code: dbCoupon.code,
               type: dbCoupon.type as 'percentage' | 'fixed',
@@ -467,18 +445,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
               active: Boolean(dbCoupon.active),
               usageCount: Number(dbCoupon.usage_count ?? 0)
             }));
-          } else {
-            console.log("Supabase coupons table is empty. Seeding initial coupons...");
-            const dbSeed = initialCoupons.map(c => ({
-              code: c.code,
-              type: c.type,
-              value: c.value,
-              active: c.active,
-              usage_count: c.usageCount
-            }));
-            const { error: seedError } = await supabase.from('coupons').insert(dbSeed);
-            if (seedError) console.error("Failed to seed Supabase coupons:", seedError);
-            loadedCoupons = initialCoupons;
           }
         } catch (err) {
           console.error("Failed to load coupons from Supabase, falling back to LocalStorage:", err);
@@ -494,24 +460,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         try {
           const { data, error } = await supabase.from('categories').select('*');
           if (error) throw error;
-          if (data && data.length > 0) {
+          if (data) {
             loadedCategories = data.map((c: any) => ({
               id: c.id,
               name: c.name,
               parentId: c.parent_id || null,
               slug: c.slug
             }));
-          } else {
-            console.log("Supabase categories table is empty. Seeding initial categories...");
-            const dbSeed = initialCategories.map(c => ({
-              id: c.id,
-              name: c.name,
-              parent_id: c.parentId || null,
-              slug: c.slug
-            }));
-            const { error: seedError } = await supabase.from('categories').insert(dbSeed);
-            if (seedError) console.error("Failed to seed Supabase categories:", seedError);
-            loadedCategories = initialCategories;
           }
         } catch (err) {
           console.error("Failed to load categories from Supabase, falling back to LocalStorage:", err);
@@ -527,7 +482,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         try {
           const { data, error } = await supabase.from('orders').select('*').order('created_at', { ascending: false });
           if (error) throw error;
-          if (data && data.length > 0) {
+          if (data) {
             loadedOrders = data.map((o: any) => ({
               id: o.id,
               trackingCode: o.tracking_code,
@@ -542,25 +497,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
               status: o.status as any,
               date: o.date
             }));
-          } else {
-            console.log("Supabase orders table is empty. Seeding initial orders...");
-            const dbSeed = initialOrders.map(o => ({
-              id: o.id,
-              tracking_code: o.trackingCode,
-              customer_name: o.customerName,
-              email: o.email,
-              phone: o.phone,
-              address: o.address,
-              items: o.items,
-              subtotal: o.subtotal,
-              discount: o.discount,
-              total: o.total,
-              status: o.status,
-              date: o.date
-            }));
-            const { error: seedError } = await supabase.from('orders').insert(dbSeed);
-            if (seedError) console.error("Failed to seed Supabase orders:", seedError);
-            loadedOrders = initialOrders;
           }
         } catch (err) {
           console.error("Failed to load orders from Supabase, falling back to LocalStorage:", err);
@@ -576,7 +512,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         try {
           const { data, error } = await supabase.from('customer_reviews').select('*');
           if (error) throw error;
-          if (data && data.length > 0) {
+          if (data) {
             loadedCustomerReviews = data.map((r: any) => ({
               id: r.id,
               text: r.text,
@@ -585,19 +521,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
               productName: r.product_name,
               imageUrl: r.image_url || null
             }));
-          } else {
-            console.log("Supabase customer reviews table is empty. Seeding initial customer reviews...");
-            const dbSeed = initialCustomerReviews.map(r => ({
-              id: r.id,
-              text: r.text,
-              rating: r.rating,
-              user_name: r.userName,
-              product_name: r.productName,
-              image_url: r.imageUrl || null
-            }));
-            const { error: seedError } = await supabase.from('customer_reviews').insert(dbSeed);
-            if (seedError) console.error("Failed to seed Supabase customer reviews:", seedError);
-            loadedCustomerReviews = initialCustomerReviews;
           }
         } catch (err) {
           console.error("Failed to load customer reviews from Supabase, falling back to LocalStorage:", err);
@@ -613,7 +536,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         try {
           const { data, error } = await supabase.from('navbar_links').select('*').order('sort_order', { ascending: true });
           if (error) throw error;
-          if (data && data.length > 0) {
+          if (data) {
             loadedNavbarLinks = data.map((n: any) => ({
               id: n.id,
               title: n.title,
@@ -621,18 +544,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
               parentId: n.parent_id || null,
               sortOrder: Number(n.sort_order ?? 0)
             }));
-          } else {
-            console.log("Supabase navbar_links table is empty. Seeding initial links...");
-            const dbSeed = initialNavbarLinks.map(n => ({
-              id: n.id,
-              title: n.title,
-              url: n.url,
-              parent_id: n.parentId,
-              sort_order: n.sortOrder
-            }));
-            const { error: seedError } = await supabase.from('navbar_links').insert(dbSeed);
-            if (seedError) console.error("Failed to seed Supabase navbar links:", seedError);
-            loadedNavbarLinks = initialNavbarLinks;
           }
         } catch (err) {
           console.error("Failed to load navbar links from Supabase, falling back to LocalStorage:", err);
@@ -650,24 +561,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         try {
           const { data, error } = await supabase.from('brands').select('*');
           if (error) throw error;
-          if (data && data.length > 0) {
+          if (data) {
             loadedBrands = data.map((b: any) => ({
               id: b.id,
               name: b.name,
               slug: b.slug,
               logoUrl: b.logo_url || null
             }));
-          } else {
-            console.log("Supabase brands table is empty. Seeding initial brands...");
-            const dbSeed = initialBrands.map(b => ({
-              id: b.id,
-              name: b.name,
-              slug: b.slug,
-              logo_url: b.logoUrl || null
-            }));
-            const { error: seedError } = await supabase.from('brands').insert(dbSeed);
-            if (seedError) console.error("Failed to seed Supabase brands:", seedError);
-            loadedBrands = initialBrands;
           }
         } catch (err) {
           console.error("Failed to load brands from Supabase, falling back to LocalStorage:", err);
@@ -685,7 +585,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         try {
           const { data, error } = await supabase.from('product_reviews').select('*').order('created_at', { ascending: false });
           if (error) throw error;
-          if (data && data.length > 0) {
+          if (data) {
             loadedProductReviews = data.map((pr: any) => ({
               id: pr.id,
               productId: pr.product_id,
@@ -694,19 +594,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
               comment: pr.comment,
               date: pr.date
             }));
-          } else {
-            console.log("Supabase product_reviews table is empty. Seeding initial product reviews...");
-            const dbSeed = initialProductReviews.map(pr => ({
-              id: pr.id,
-              product_id: pr.productId,
-              customer_name: pr.customerName,
-              rating: pr.rating,
-              comment: pr.comment,
-              date: pr.date
-            }));
-            const { error: seedError } = await supabase.from('product_reviews').insert(dbSeed);
-            if (seedError) console.error("Failed to seed Supabase product reviews:", seedError);
-            loadedProductReviews = initialProductReviews;
           }
         } catch (err) {
           console.error("Failed to load product reviews from Supabase, falling back to LocalStorage:", err);
